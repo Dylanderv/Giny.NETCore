@@ -1,31 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿namespace Giny.Core.Pool;
 
-namespace Giny.Core.Pool
+public class ReversedUniqueIdProvider : UniqueIdProvider
 {
-    public class ReversedUniqueIdProvider : UniqueIdProvider
+    public ReversedUniqueIdProvider()
     {
-        public ReversedUniqueIdProvider()
-        {
-        }
+    }
 
-        public ReversedUniqueIdProvider(int lastId)
-            : base(lastId)
-        {
-        }
+    public ReversedUniqueIdProvider(int lastId)
+        : base(lastId)
+    {
+    }
 
-        public ReversedUniqueIdProvider(IEnumerable<int> freeIds)
-            : base(freeIds)
-        {
-        }
+    public ReversedUniqueIdProvider(IEnumerable<int> freeIds)
+        : base(freeIds)
+    {
+    }
 
-        protected override int Next()
-        {
-            return Interlocked.Decrement(ref this.m_highestId);
-        }
+    protected override int Next()
+    {
+        return Interlocked.Decrement(ref this.m_highestId);
     }
 }

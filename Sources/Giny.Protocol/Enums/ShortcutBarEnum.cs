@@ -1,12 +1,8 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum ShortcutBarEnum
 {
-    public enum ShortcutBarEnum
-    {
-        GENERAL_SHORTCUT_BAR = 0,
-        SPELL_SHORTCUT_BAR = 1,
+    GENERAL_SHORTCUT_BAR = 0,
+    SPELL_SHORTCUT_BAR = 1,
 
-    }
 }
-

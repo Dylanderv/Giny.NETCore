@@ -1,60 +1,53 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class JobCrafterDirectoryRemoveMessage : NetworkMessage
 {
-    public class JobCrafterDirectoryRemoveMessage : NetworkMessage
+    public const ushort Id = 8338;
+    public override ushort MessageId => Id;
+
+    public byte jobId;
+    public long playerId;
+
+    public JobCrafterDirectoryRemoveMessage()
     {
-        public const ushort Id = 8338;
-        public override ushort MessageId => Id;
-
-        public byte jobId;
-        public long playerId;
-
-        public JobCrafterDirectoryRemoveMessage()
+    }
+    public JobCrafterDirectoryRemoveMessage(byte jobId, long playerId)
+    {
+        this.jobId = jobId;
+        this.playerId = playerId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (jobId < 0)
         {
+            throw new System.Exception("Forbidden value (" + jobId + ") on element jobId.");
         }
-        public JobCrafterDirectoryRemoveMessage(byte jobId, long playerId)
+
+        writer.WriteByte((byte)jobId);
+        if (playerId < 0 || playerId > 9007199254740992)
         {
-            this.jobId = jobId;
-            this.playerId = playerId;
+            throw new System.Exception("Forbidden value (" + playerId + ") on element playerId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarLong((long)playerId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        jobId = (byte)reader.ReadByte();
+        if (jobId < 0)
         {
-            if (jobId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + jobId + ") on element jobId.");
-            }
-
-            writer.WriteByte((byte)jobId);
-            if (playerId < 0 || playerId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + playerId + ") on element playerId.");
-            }
-
-            writer.WriteVarLong((long)playerId);
+            throw new System.Exception("Forbidden value (" + jobId + ") on element of JobCrafterDirectoryRemoveMessage.jobId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        playerId = (long)reader.ReadVarUhLong();
+        if (playerId < 0 || playerId > 9007199254740992)
         {
-            jobId = (byte)reader.ReadByte();
-            if (jobId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + jobId + ") on element of JobCrafterDirectoryRemoveMessage.jobId.");
-            }
-
-            playerId = (long)reader.ReadVarUhLong();
-            if (playerId < 0 || playerId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + playerId + ") on element of JobCrafterDirectoryRemoveMessage.playerId.");
-            }
-
+            throw new System.Exception("Forbidden value (" + playerId + ") on element of JobCrafterDirectoryRemoveMessage.playerId.");
         }
 
     }
+
 }
-
-

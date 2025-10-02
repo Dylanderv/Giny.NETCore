@@ -4,41 +4,35 @@ using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Records.Maps;
 using Giny.World.Records.Monsters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Summons
+namespace Giny.World.Managers.Fights.Effects.Summons;
+
+[SpellEffectHandler(EffectsEnum.Effect_SummonSlave)]
+public class SummonSlave : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_SummonSlave)]
-    public class SummonSlave : SpellEffectHandler
+    public SummonSlave(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public SummonSlave(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
+    }
+
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        if (!(Source is CharacterFighter))
         {
+            return;
         }
 
-        protected override void Apply(IEnumerable<Fighter> targets)
+        MonsterRecord record = MonsterRecord.GetMonsterRecord((short)Effect.Min);
+
+        CellRecord? summonCell = GetSummonCell();
+
+        if (record != null && summonCell != null)
         {
-            if (!(Source is CharacterFighter))
+            SummonedMonster summon = CreateSummon(record, (byte)Effect.Max, summonCell);
+
+            if (Source.CanSummon() || !summon.UseSummonSlot())
             {
-                return;
-            }
-
-            MonsterRecord record = MonsterRecord.GetMonsterRecord((short)Effect.Min);
-
-            CellRecord? summonCell = GetSummonCell();
-
-            if (record != null && summonCell != null)
-            {
-                SummonedMonster summon = CreateSummon(record, (byte)Effect.Max, summonCell);
-
-                if (Source.CanSummon() || !summon.UseSummonSlot())
-                {
-                    summon.SetController((CharacterFighter)Source);
-                    Source.Fight.AddSummon(Source, summon);
-                }
+                summon.SetController((CharacterFighter)Source);
+                Source.Fight.AddSummon(Source, summon);
             }
         }
     }

@@ -1,60 +1,53 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class AllianceChangeMemberRankMessage : NetworkMessage
 {
-    public class AllianceChangeMemberRankMessage : NetworkMessage
+    public const ushort Id = 1021;
+    public override ushort MessageId => Id;
+
+    public long memberId;
+    public int rankId;
+
+    public AllianceChangeMemberRankMessage()
     {
-        public const ushort Id = 1021;
-        public override ushort MessageId => Id;
-
-        public long memberId;
-        public int rankId;
-
-        public AllianceChangeMemberRankMessage()
+    }
+    public AllianceChangeMemberRankMessage(long memberId, int rankId)
+    {
+        this.memberId = memberId;
+        this.rankId = rankId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (memberId < 0 || memberId > 9007199254740992)
         {
+            throw new System.Exception("Forbidden value (" + memberId + ") on element memberId.");
         }
-        public AllianceChangeMemberRankMessage(long memberId, int rankId)
+
+        writer.WriteVarLong((long)memberId);
+        if (rankId < 0)
         {
-            this.memberId = memberId;
-            this.rankId = rankId;
+            throw new System.Exception("Forbidden value (" + rankId + ") on element rankId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarInt((int)rankId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        memberId = (long)reader.ReadVarUhLong();
+        if (memberId < 0 || memberId > 9007199254740992)
         {
-            if (memberId < 0 || memberId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + memberId + ") on element memberId.");
-            }
-
-            writer.WriteVarLong((long)memberId);
-            if (rankId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + rankId + ") on element rankId.");
-            }
-
-            writer.WriteVarInt((int)rankId);
+            throw new System.Exception("Forbidden value (" + memberId + ") on element of AllianceChangeMemberRankMessage.memberId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        rankId = (int)reader.ReadVarUhInt();
+        if (rankId < 0)
         {
-            memberId = (long)reader.ReadVarUhLong();
-            if (memberId < 0 || memberId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + memberId + ") on element of AllianceChangeMemberRankMessage.memberId.");
-            }
-
-            rankId = (int)reader.ReadVarUhInt();
-            if (rankId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + rankId + ") on element of AllianceChangeMemberRankMessage.rankId.");
-            }
-
+            throw new System.Exception("Forbidden value (" + rankId + ") on element of AllianceChangeMemberRankMessage.rankId.");
         }
 
     }
+
 }
-
-

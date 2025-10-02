@@ -1,12 +1,8 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum HaapiSessionTypeEnum
 {
-    public enum HaapiSessionTypeEnum
-    {
-        HAAPI_ACCOUNT_SESSION = 0,
-        HAAPI_GAME_SESSION = 1,
+    HAAPI_ACCOUNT_SESSION = 0,
+    HAAPI_GAME_SESSION = 1,
 
-    }
 }
-

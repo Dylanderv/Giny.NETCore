@@ -1,12 +1,8 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum MapObstacleStateEnum
 {
-    public enum MapObstacleStateEnum
-    {
-        OBSTACLE_OPENED = 1,
-        OBSTACLE_CLOSED = 2,
+    OBSTACLE_OPENED = 1,
+    OBSTACLE_CLOSED = 2,
 
-    }
 }
-

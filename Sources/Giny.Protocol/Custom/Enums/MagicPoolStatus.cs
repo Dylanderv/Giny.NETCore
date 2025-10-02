@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Giny.Protocol.Custom.Enums;
 
-namespace Giny.Protocol.Custom.Enums
+public enum MagicPoolStatusEnum
 {
-    public enum MagicPoolStatusEnum
-    {
-        UNMODIFIED = 1,
-        INCREASED = 2,
-        DECREASED = 3,
-    }
+    UNMODIFIED = 1,
+    INCREASED = 2,
+    DECREASED = 3,
 }

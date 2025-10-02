@@ -1,50 +1,42 @@
-using System.Collections.Generic;
-using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class LifePointsRegenEndMessage : UpdateLifePointsMessage
 {
-    public class LifePointsRegenEndMessage : UpdateLifePointsMessage
+    public new const ushort Id = 7099;
+    public override ushort MessageId => Id;
+
+    public int lifePointsGained;
+
+    public LifePointsRegenEndMessage()
     {
-        public new const ushort Id = 7099;
-        public override ushort MessageId => Id;
-
-        public int lifePointsGained;
-
-        public LifePointsRegenEndMessage()
+    }
+    public LifePointsRegenEndMessage(int lifePointsGained, int lifePoints, int maxLifePoints)
+    {
+        this.lifePointsGained = lifePointsGained;
+        this.lifePoints = lifePoints;
+        this.maxLifePoints = maxLifePoints;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        base.Serialize(writer);
+        if (lifePointsGained < 0)
         {
+            throw new System.Exception("Forbidden value (" + lifePointsGained + ") on element lifePointsGained.");
         }
-        public LifePointsRegenEndMessage(int lifePointsGained, int lifePoints, int maxLifePoints)
-        {
-            this.lifePointsGained = lifePointsGained;
-            this.lifePoints = lifePoints;
-            this.maxLifePoints = maxLifePoints;
-        }
-        public override void Serialize(IDataWriter writer)
-        {
-            base.Serialize(writer);
-            if (lifePointsGained < 0)
-            {
-                throw new System.Exception("Forbidden value (" + lifePointsGained + ") on element lifePointsGained.");
-            }
 
-            writer.WriteVarInt((int)lifePointsGained);
-        }
-        public override void Deserialize(IDataReader reader)
+        writer.WriteVarInt((int)lifePointsGained);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        base.Deserialize(reader);
+        lifePointsGained = (int)reader.ReadVarUhInt();
+        if (lifePointsGained < 0)
         {
-            base.Deserialize(reader);
-            lifePointsGained = (int)reader.ReadVarUhInt();
-            if (lifePointsGained < 0)
-            {
-                throw new System.Exception("Forbidden value (" + lifePointsGained + ") on element of LifePointsRegenEndMessage.lifePointsGained.");
-            }
-
+            throw new System.Exception("Forbidden value (" + lifePointsGained + ") on element of LifePointsRegenEndMessage.lifePointsGained.");
         }
 
     }
+
 }
-
-

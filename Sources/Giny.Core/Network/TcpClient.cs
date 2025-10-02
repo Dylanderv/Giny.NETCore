@@ -1,169 +1,162 @@
-﻿using Giny.Core.IO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.Core.Network
+namespace Giny.Core.Network;
+
+public abstract class TcpClient : IDisposable
 {
-    public abstract class TcpClient : IDisposable
+    public const int BUFFER_LENGTH = 8192;
+
+    protected Socket Socket
     {
-        public const int BUFFER_LENGTH = 8192;
+        get;
+        set;
+    }
 
-        protected Socket Socket
-        {
-            get;
-            set;
-        }
+    protected byte[] Buffer
+    {
+        get;
+        set;
+    }
 
-        protected byte[] Buffer
+    protected int BufferPosition
+    {
+        get;
+        set;
+    }
+    public IPEndPoint? EndPoint
+    {
+        get
         {
-            get;
-            set;
+            return Socket == null ? null : Socket.RemoteEndPoint as IPEndPoint;
         }
-
-        protected int BufferPosition
+    }
+    public string Ip
+    {
+        get
         {
-            get;
-            set;
-        }
-        public IPEndPoint? EndPoint
-        {
-            get
+            if (EndPoint == null)
             {
-                return Socket == null ? null : Socket.RemoteEndPoint as IPEndPoint;
+                return null;
             }
+            return EndPoint.Address.ToString();
         }
-        public string Ip
+    }
+    public bool Connected
+    {
+        get
         {
-            get
-            {
-                if (EndPoint == null)
-                {
-                    return null;
-                }
-                return EndPoint.Address.ToString();
-            }
+            return Socket != null && Socket.Connected;
         }
-        public bool Connected
+    }
+
+    public TcpClient()
+    {
+        Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        Buffer = new byte[BUFFER_LENGTH];
+    }
+    public TcpClient(Socket socket)
+    {
+        this.Buffer = new byte[BUFFER_LENGTH];
+        this.Socket = socket;
+    }
+
+    public abstract void OnConnectionClosed();
+
+    public abstract void OnConnected();
+
+    public abstract void OnDisconnected();
+
+
+    public abstract void OnFailToConnect(Exception ex);
+
+    protected abstract void OnDataArrival(int dataSize);
+
+    public abstract void OnSended(IAsyncResult result);
+
+    public void Connect(string host, int port)
+    {
+        Socket?.BeginConnect(new IPEndPoint(IPAddress.Parse(host), port), new AsyncCallback(OnConnectionResulted), Socket);
+    }
+
+    public void OnConnectionResulted(IAsyncResult result)
+    {
+        try
         {
-            get
-            {
-                return Socket != null && Socket.Connected;
-            }
+            Socket.EndConnect(result);
+            BeginReceive();
+            OnConnected();
+        }
+        catch (Exception ex)
+        {
+            OnFailToConnect(ex);
+        }
+    }
+    protected void BeginReceive()
+    {
+        try
+        {
+            Socket?.BeginReceive(Buffer, 0, Buffer.Length, SocketFlags.None, OnReceived, null);
+        }
+        catch (Exception ex)
+        {
+            Logger.Write("Unable to receive from client " + ex, Channels.Warning);
+            Disconnect();
+        }
+    }
+    public void OnReceived(IAsyncResult result)
+    {
+        if (Socket == null)
+        {
+            return;
         }
 
-        public TcpClient()
+        int size = 0;
+        try
         {
-            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            Buffer = new byte[BUFFER_LENGTH];
-        }
-        public TcpClient(Socket socket)
-        {
-            this.Buffer = new byte[BUFFER_LENGTH];
-            this.Socket = socket;
-        }
+            size = Socket.EndReceive(result);
 
-        public abstract void OnConnectionClosed();
-
-        public abstract void OnConnected();
-
-        public abstract void OnDisconnected();
-
-
-        public abstract void OnFailToConnect(Exception ex);
-
-        protected abstract void OnDataArrival(int dataSize);
-
-        public abstract void OnSended(IAsyncResult result);
-
-        public void Connect(string host, int port)
-        {
-            Socket?.BeginConnect(new IPEndPoint(IPAddress.Parse(host), port), new AsyncCallback(OnConnectionResulted), Socket);
-        }
-
-        public void OnConnectionResulted(IAsyncResult result)
-        {
-            try
-            {
-                Socket.EndConnect(result);
-                BeginReceive();
-                OnConnected();
-            }
-            catch (Exception ex)
-            {
-                OnFailToConnect(ex);
-            }
-        }
-        protected void BeginReceive()
-        {
-            try
-            {
-                Socket?.BeginReceive(Buffer, 0, Buffer.Length, SocketFlags.None, OnReceived, null);
-            }
-            catch (Exception ex)
-            {
-                Logger.Write("Unable to receive from client " + ex, Channels.Warning);
-                Disconnect();
-            }
-        }
-        public void OnReceived(IAsyncResult result)
-        {
-            if (Socket == null)
-            {
-                return;
-            }
-
-            int size = 0;
-            try
-            {
-                size = Socket.EndReceive(result);
-
-                if (size == 0)
-                {
-                    Dispose();
-                    OnConnectionClosed();
-                    return;
-                }
-
-            }
-            catch
+            if (size == 0)
             {
                 Dispose();
                 OnConnectionClosed();
                 return;
             }
 
-            OnDataArrival(size);
-            BeginReceive();
         }
-        public void Disconnect()
+        catch
         {
-            if (Socket != null)
-            {
-                Dispose();
+            Dispose();
+            OnConnectionClosed();
+            return;
+        }
 
-                try
-                {
-                    OnDisconnected();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Write("Unable to disconnect client : " + ex);
-                }
+        OnDataArrival(size);
+        BeginReceive();
+    }
+    public void Disconnect()
+    {
+        if (Socket != null)
+        {
+            Dispose();
+
+            try
+            {
+                OnDisconnected();
+            }
+            catch (Exception ex)
+            {
+                Logger.Write("Unable to disconnect client : " + ex);
             }
         }
+    }
 
-        public virtual void Dispose()
-        {
-            Socket?.Shutdown(SocketShutdown.Both);
-            Socket?.Close();
-            Socket?.Dispose();
-            Socket = null;
+    public virtual void Dispose()
+    {
+        Socket?.Shutdown(SocketShutdown.Both);
+        Socket?.Close();
+        Socket?.Dispose();
+        Socket = null;
 
-        }
     }
 }

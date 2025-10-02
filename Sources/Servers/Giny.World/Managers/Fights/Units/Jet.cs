@@ -1,97 +1,87 @@
 ﻿using Giny.Core;
-using Giny.Core.Time;
-using Giny.Protocol.Custom.Enums;
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
-using Giny.World.Managers.Fights.Zones.Sets;
-using Org.BouncyCastle.Asn1.X509;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Units
+namespace Giny.World.Managers.Fights.Units;
+
+public class Jet
 {
-    public class Jet
+    public double Min
     {
-        public double Min
+        get;
+        set;
+    }
+    public double Max
+    {
+        get;
+        set;
+    }
+
+    public Jet(double min, double max)
+    {
+        Min = min;
+        Max = max;
+    }
+
+    public void ValidateBounds()
+    {
+        if (Min < 0)
         {
-            get;
-            set;
+            Min = 0;
         }
-        public double Max
+        if (Max < 0)
         {
-            get;
-            set;
+            Max = 0;
         }
 
-        public Jet(double min, double max)
+        if (Min > Max)
         {
-            Min = min;
-            Max = max;
-        }
+            Logger.Write("Unable to compute jet Min :" + Min + " Max :" + Max, Channels.Critical);
 
-        public void ValidateBounds()
+            Max = 1;
+            Min = 1;
+        }
+    }
+
+    public void ComputeShapeEfficiencyModifiers(Fighter target, SpellEffectHandler effectHandler)
+    {
+        double efficiency = effectHandler.Zone.GetShapeEfficiency(target.Cell, effectHandler.CastHandler.Cast.TargetCell);
+        Min = Min * efficiency;
+        Max = Max * efficiency;
+    }
+    public void ApplyMultiplicator(int value)
+    {
+        Min = Min * (value / 100d);
+        Max = Max * (value / 100d);
+    }
+    public void ApplyBonus(int value)
+    {
+        Min = Min + (Min * (value / 100d));
+        Max = Max + (Max * (value / 100d));
+    }
+    public int Generate(Random random, bool hasRandDownModifier, bool hasRandUpModifier)
+    {
+        if (Min == Max)
         {
-            if (Min < 0)
+            return (int)Max;
+        }
+        else
+        {
+            if (hasRandDownModifier)
             {
-                Min = 0;
+                return (int)Min;
             }
-            if (Max < 0)
+            if (hasRandUpModifier)
             {
-                Max = 0;
+                return (int)Max;
             }
 
             if (Min > Max)
             {
-                Logger.Write("Unable to compute jet Min :" + Min + " Max :" + Max, Channels.Critical);
-
-                Max = 1;
-                Min = 1;
+                return (int)Min;
             }
-        }
 
-        public void ComputeShapeEfficiencyModifiers(Fighter target, SpellEffectHandler effectHandler)
-        {
-            double efficiency = effectHandler.Zone.GetShapeEfficiency(target.Cell, effectHandler.CastHandler.Cast.TargetCell);
-            Min = Min * efficiency;
-            Max = Max * efficiency;
-        }
-        public void ApplyMultiplicator(int value)
-        {
-            Min = Min * (value / 100d);
-            Max = Max * (value / 100d);
-        }
-        public void ApplyBonus(int value)
-        {
-            Min = Min + (Min * (value / 100d));
-            Max = Max + (Max * (value / 100d));
-        }
-        public int Generate(Random random, bool hasRandDownModifier, bool hasRandUpModifier)
-        {
-            if (Min == Max)
-            {
-                return (int)Max;
-            }
-            else
-            {
-                if (hasRandDownModifier)
-                {
-                    return (int)Min;
-                }
-                if (hasRandUpModifier)
-                {
-                    return (int)Max;
-                }
-
-                if (Min > Max)
-                {
-                    return (int)Min;
-                }
-
-                return (int)random.Next((int)Min, (int)Max + 1);
-            }
+            return (int)random.Next((int)Min, (int)Max + 1);
         }
     }
 }

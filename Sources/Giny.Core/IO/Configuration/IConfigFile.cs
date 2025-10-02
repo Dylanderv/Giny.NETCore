@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Giny.Core.IO.Configuration;
 
-namespace Giny.Core.IO.Configuration
+public interface IConfigFile
 {
-    public interface IConfigFile
-    {
-        void OnLoaded();
+    void OnLoaded();
 
-        void OnCreated();
+    void OnCreated();
 
-    }
 }

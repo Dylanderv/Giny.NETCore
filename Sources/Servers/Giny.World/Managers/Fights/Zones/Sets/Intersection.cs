@@ -1,39 +1,33 @@
 ﻿using Giny.World.Managers.Maps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Zones.Sets
+namespace Giny.World.Managers.Fights.Zones.Sets;
+
+public class Intersection : Set
 {
-    public class Intersection : Set
+    public Intersection(Set A, Set B)
     {
-        public Intersection(Set A, Set B)
-        {
-            this.A = A;
-            this.B = B;
-        }
-        public Set A
-        {
-            get;
-            private set;
-        }
+        this.A = A;
+        this.B = B;
+    }
+    public Set A
+    {
+        get;
+        private set;
+    }
 
-        public Set B
-        {
-            get;
-            private set;
-        }
+    public Set B
+    {
+        get;
+        private set;
+    }
 
-        public override IEnumerable<MapPoint> EnumerateSet()
-        {
-            return A.EnumerateSet().Intersect(B.EnumerateSet());
-        }
+    public override IEnumerable<MapPoint> EnumerateSet()
+    {
+        return A.EnumerateSet().Intersect(B.EnumerateSet());
+    }
 
-        public override bool BelongToSet(MapPoint point)
-        {
-            return A.BelongToSet(point) && B.BelongToSet(point);
-        }
+    public override bool BelongToSet(MapPoint point)
+    {
+        return A.BelongToSet(point) && B.BelongToSet(point);
     }
 }

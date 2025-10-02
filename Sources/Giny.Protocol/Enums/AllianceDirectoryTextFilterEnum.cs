@@ -1,13 +1,9 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum AllianceDirectoryTextFilterEnum
 {
-    public enum AllianceDirectoryTextFilterEnum
-    {
-        ALLIANCE_SEARCH_DEFAULT_FILTER = 0,
-        ALLIANCE_SEARCH_NAME_FILTER = 1,
-        ALLIANCE_SEARCH_TAG_FILTER = 2,
+    ALLIANCE_SEARCH_DEFAULT_FILTER = 0,
+    ALLIANCE_SEARCH_NAME_FILTER = 1,
+    ALLIANCE_SEARCH_TAG_FILTER = 2,
 
-    }
 }
-

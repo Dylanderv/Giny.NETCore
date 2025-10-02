@@ -6,212 +6,205 @@ using Giny.Core.Network.Messages;
 using Giny.Protocol.Enums;
 using Giny.Protocol.IPC.Messages;
 using Giny.Protocol.Types;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Network
+namespace Giny.World.Network;
+
+public class WorldServer : Singleton<WorldServer>
 {
-    public class WorldServer : Singleton<WorldServer>
+    private readonly object m_locker = new object();
+
+    private readonly object m_statusLocker = new object();
+
+    private List<WorldClient> Clients
     {
-        private readonly object m_locker = new object();
+        get;
+        set;
+    }
 
-        private readonly object m_statusLocker = new object();
+    private ServerStatusEnum Status
+    {
+        get;
+        set;
+    } = ServerStatusEnum.STARTING;
 
-        private List<WorldClient> Clients
+
+    private TcpServer Server
+    {
+        get;
+        set;
+    }
+    public bool Started
+    {
+        get;
+        private set;
+    }
+
+    public int MaximumClients
+    {
+        get;
+        private set;
+    }
+
+
+    public WorldServer()
+    {
+        this.Clients = new List<WorldClient>();
+        this.Started = false;
+    }
+
+
+    public void Start(string ip, int port)
+    {
+        this.Server = new TcpServer(ip, port);
+        this.Server.OnSocketConnected += OnClientConnected;
+        this.Server.OnServerFailedToStart += OnServerFailedToStart;
+        this.Server.OnServerStarted += OnServerStarted;
+        this.Server.Start();
+        this.Started = true;
+    }
+
+    public bool IsOnline(long characterId)
+    {
+        return GetOnlineClients().Any(x => x.Character.Id == characterId);
+    }
+
+    public void Foreach(Action<WorldClient> action)
+    {
+
+        foreach (var client in GetOnlineClients())
         {
-            get;
-            set;
+            action(client);
         }
 
-        private ServerStatusEnum Status
+    }
+    public IEnumerable<WorldClient> GetOnlineClients()
+    {
+        lock (m_locker)
         {
-            get;
-            set;
-        } = ServerStatusEnum.STARTING;
-
-
-        private TcpServer Server
-        {
-            get;
-            set;
+            return Clients.Where(x => x.InGame).ToArray();
         }
-        public bool Started
+    }
+    public IEnumerable<WorldClient> GetClients()
+    {
+        lock (m_locker)
         {
-            get;
-            private set;
+            return Clients.ToArray();
         }
-
-        public int MaximumClients
+    }
+    /// <summary>
+    /// Returns a client who is not necessarily connected in game 
+    /// </summary>
+    public WorldClient GetClient(Func<WorldClient, bool> predicate)
+    {
+        lock (m_locker)
         {
-            get;
-            private set;
+            return Clients.FirstOrDefault(predicate);
         }
-
-
-        public WorldServer()
+    }
+    public WorldClient GetClient(AbstractPlayerSearchInformation target)
+    {
+        if (target is PlayerSearchCharacterNameInformation)
         {
-            this.Clients = new List<WorldClient>();
-            this.Started = false;
+            return GetOnlineClient(x => x.Character.Name == ((PlayerSearchCharacterNameInformation)target).name);
         }
-
-
-        public void Start(string ip, int port)
+        if (target is PlayerSearchTagInformation)
         {
-            this.Server = new TcpServer(ip, port);
-            this.Server.OnSocketConnected += OnClientConnected;
-            this.Server.OnServerFailedToStart += OnServerFailedToStart;
-            this.Server.OnServerStarted += OnServerStarted;
-            this.Server.Start();
-            this.Started = true;
+            throw new NotImplementedException("tags not implemented.");
         }
 
-        public bool IsOnline(long characterId)
+        return null;
+    }
+
+    /// <summary>
+    /// Returns a client who is connected in game 
+    /// </summary>
+    public WorldClient GetOnlineClient(Func<WorldClient, bool> predicate)
+    {
+        lock (m_locker)
         {
-            return GetOnlineClients().Any(x => x.Character.Id == characterId);
+            return Clients.Where(x => x.InGame).FirstOrDefault(predicate);
+        }
+    }
+    private void OnClientConnected(Socket acceptSocket)
+    {
+        if (ConfigManager<WorldConfig>.Instance.LogProtocol)
+        {
+            Logger.Write("(World) New client connected.");
         }
 
-        public void Foreach(Action<WorldClient> action)
-        {
+        WorldClient client = new WorldClient(acceptSocket);
 
-            foreach (var client in GetOnlineClients())
+        lock (m_locker)
+        {
+            Clients.Add(client);
+
+            if (Clients.Count > MaximumClients)
             {
-                action(client);
+                MaximumClients = Clients.Count;
             }
+        }
+    }
 
-        }
-        public IEnumerable<WorldClient> GetOnlineClients()
-        {
-            lock (m_locker)
-            {
-                return Clients.Where(x => x.InGame).ToArray();
-            }
-        }
-        public IEnumerable<WorldClient> GetClients()
-        {
-            lock (m_locker)
-            {
-                return Clients.ToArray();
-            }
-        }
-        /// <summary>
-        /// Returns a client who is not necessarily connected in game 
-        /// </summary>
-        public WorldClient GetClient(Func<WorldClient, bool> predicate)
-        {
-            lock (m_locker)
-            {
-                return Clients.FirstOrDefault(predicate);
-            }
-        }
-        public WorldClient GetClient(AbstractPlayerSearchInformation target)
-        {
-            if (target is PlayerSearchCharacterNameInformation)
-            {
-                return GetOnlineClient(x => x.Character.Name == ((PlayerSearchCharacterNameInformation)target).name);
-            }
-            if (target is PlayerSearchTagInformation)
-            {
-                throw new NotImplementedException("tags not implemented.");
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Returns a client who is connected in game 
-        /// </summary>
-        public WorldClient GetOnlineClient(Func<WorldClient, bool> predicate)
-        {
-            lock (m_locker)
-            {
-                return Clients.Where(x => x.InGame).FirstOrDefault(predicate);
-            }
-        }
-        private void OnClientConnected(Socket acceptSocket)
+    public GameServerTypeEnum GetServerType()
+    {
+        return ConfigManager<WorldConfig>.Instance.ServerType;
+    }
+    public bool IsEpicOrHardcore()
+    {
+        return GetServerType() == GameServerTypeEnum.SERVER_TYPE_EPIC || GetServerType() == GameServerTypeEnum.SERVER_TYPE_HARDCORE;
+    }
+    public void RemoveClient(WorldClient client)
+    {
+        lock (m_locker)
         {
             if (ConfigManager<WorldConfig>.Instance.LogProtocol)
             {
-                Logger.Write("(World) New client connected.");
+                Logger.Write("(World) Client disconnected.", Channels.Info);
             }
 
-            WorldClient client = new WorldClient(acceptSocket);
+            Clients.Remove(client);
+        }
+    }
+    private void OnServerFailedToStart(Exception ex)
+    {
+        Logger.Write("(World) Unable to start WorldServer : " + ex, Channels.Critical);
+        SetServerStatus(ServerStatusEnum.OFFLINE);
+    }
+    public void SendServerStatusToAuth()
+    {
+        IPCManager.Instance.Send(new IPCServerStatusUpdateMessage(Status));
+    }
+    public void SetServerStatus(ServerStatusEnum status)
+    {
+        lock (m_statusLocker)
+        {
+            this.Status = status;
 
-            lock (m_locker)
+            if (IPCManager.Instance.Connected)
             {
-                Clients.Add(client);
-
-                if (Clients.Count > MaximumClients)
-                {
-                    MaximumClients = Clients.Count;
-                }
+                SendServerStatusToAuth();
             }
         }
 
-        public GameServerTypeEnum GetServerType()
+    }
+    public ServerStatusEnum GetServerStatus()
+    {
+        lock (m_statusLocker)
         {
-            return ConfigManager<WorldConfig>.Instance.ServerType;
+            return Status;
         }
-        public bool IsEpicOrHardcore()
+    }
+    public void Send(NetworkMessage message)
+    {
+        foreach (var client in GetOnlineClients())
         {
-            return GetServerType() == GameServerTypeEnum.SERVER_TYPE_EPIC || GetServerType() == GameServerTypeEnum.SERVER_TYPE_HARDCORE;
+            client.Send(message);
         }
-        public void RemoveClient(WorldClient client)
-        {
-            lock (m_locker)
-            {
-                if (ConfigManager<WorldConfig>.Instance.LogProtocol)
-                {
-                    Logger.Write("(World) Client disconnected.", Channels.Info);
-                }
-
-                Clients.Remove(client);
-            }
-        }
-        private void OnServerFailedToStart(Exception ex)
-        {
-            Logger.Write("(World) Unable to start WorldServer : " + ex, Channels.Critical);
-            SetServerStatus(ServerStatusEnum.OFFLINE);
-        }
-        public void SendServerStatusToAuth()
-        {
-            IPCManager.Instance.Send(new IPCServerStatusUpdateMessage(Status));
-        }
-        public void SetServerStatus(ServerStatusEnum status)
-        {
-            lock (m_statusLocker)
-            {
-                this.Status = status;
-
-                if (IPCManager.Instance.Connected)
-                {
-                    SendServerStatusToAuth();
-                }
-            }
-
-        }
-        public ServerStatusEnum GetServerStatus()
-        {
-            lock (m_statusLocker)
-            {
-                return Status;
-            }
-        }
-        public void Send(NetworkMessage message)
-        {
-            foreach (var client in GetOnlineClients())
-            {
-                client.Send(message);
-            }
-        }
-        private void OnServerStarted()
-        {
-            Logger.Write($"(World) World Server started '{Server.EndPoint.Address}:{Server.EndPoint.Port}' ", Channels.Info);
-            SetServerStatus(ServerStatusEnum.ONLINE);
-        }
+    }
+    private void OnServerStarted()
+    {
+        Logger.Write($"(World) World Server started '{Server.EndPoint.Address}:{Server.EndPoint.Port}' ", Channels.Info);
+        SetServerStatus(ServerStatusEnum.ONLINE);
     }
 }

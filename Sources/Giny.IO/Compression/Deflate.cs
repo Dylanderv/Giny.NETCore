@@ -1,34 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO.Compression;
 
-namespace Giny.IO.Compression
+namespace Giny.IO.Compression;
+
+public class Deflate
 {
-    public class Deflate
+    public static byte[] Compress(Stream input)
     {
-        public static byte[] Compress(Stream input)
+        using (var compressStream = new MemoryStream())
+        using (var compressor = new DeflateStream(compressStream, CompressionMode.Compress))
         {
-            using (var compressStream = new MemoryStream())
-            using (var compressor = new DeflateStream(compressStream, CompressionMode.Compress))
-            {
-                input.CopyTo(compressor);
-                compressor.Close();
-                return compressStream.ToArray();
-            }
+            input.CopyTo(compressor);
+            compressor.Close();
+            return compressStream.ToArray();
         }
-        public static byte[] Decompress(Stream input)
+    }
+    public static byte[] Decompress(Stream input)
+    {
+        using (MemoryStream output = new MemoryStream())
         {
-            using (MemoryStream output = new MemoryStream())
+            using (DeflateStream decompressionStream = new DeflateStream(input, CompressionMode.Decompress))
             {
-                using (DeflateStream decompressionStream = new DeflateStream(input, CompressionMode.Decompress))
-                {
-                    decompressionStream.CopyTo(output);
-                    return output.ToArray();
-                }
+                decompressionStream.CopyTo(output);
+                return output.ToArray();
             }
         }
     }

@@ -1,88 +1,81 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class GameRolePlayMonsterAngryAtPlayerMessage : NetworkMessage
 {
-    public class GameRolePlayMonsterAngryAtPlayerMessage : NetworkMessage
+    public const ushort Id = 8414;
+    public override ushort MessageId => Id;
+
+    public long playerId;
+    public double monsterGroupId;
+    public double angryStartTime;
+    public double attackTime;
+
+    public GameRolePlayMonsterAngryAtPlayerMessage()
     {
-        public const ushort Id = 8414;
-        public override ushort MessageId => Id;
-
-        public long playerId;
-        public double monsterGroupId;
-        public double angryStartTime;
-        public double attackTime;
-
-        public GameRolePlayMonsterAngryAtPlayerMessage()
+    }
+    public GameRolePlayMonsterAngryAtPlayerMessage(long playerId, double monsterGroupId, double angryStartTime, double attackTime)
+    {
+        this.playerId = playerId;
+        this.monsterGroupId = monsterGroupId;
+        this.angryStartTime = angryStartTime;
+        this.attackTime = attackTime;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (playerId < 0 || playerId > 9007199254740992)
         {
+            throw new System.Exception("Forbidden value (" + playerId + ") on element playerId.");
         }
-        public GameRolePlayMonsterAngryAtPlayerMessage(long playerId, double monsterGroupId, double angryStartTime, double attackTime)
+
+        writer.WriteVarLong((long)playerId);
+        if (monsterGroupId < -9007199254740992 || monsterGroupId > 9007199254740992)
         {
-            this.playerId = playerId;
-            this.monsterGroupId = monsterGroupId;
-            this.angryStartTime = angryStartTime;
-            this.attackTime = attackTime;
+            throw new System.Exception("Forbidden value (" + monsterGroupId + ") on element monsterGroupId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteDouble((double)monsterGroupId);
+        if (angryStartTime < 0 || angryStartTime > 9007199254740992)
         {
-            if (playerId < 0 || playerId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + playerId + ") on element playerId.");
-            }
-
-            writer.WriteVarLong((long)playerId);
-            if (monsterGroupId < -9007199254740992 || monsterGroupId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + monsterGroupId + ") on element monsterGroupId.");
-            }
-
-            writer.WriteDouble((double)monsterGroupId);
-            if (angryStartTime < 0 || angryStartTime > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + angryStartTime + ") on element angryStartTime.");
-            }
-
-            writer.WriteDouble((double)angryStartTime);
-            if (attackTime < 0 || attackTime > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + attackTime + ") on element attackTime.");
-            }
-
-            writer.WriteDouble((double)attackTime);
+            throw new System.Exception("Forbidden value (" + angryStartTime + ") on element angryStartTime.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        writer.WriteDouble((double)angryStartTime);
+        if (attackTime < 0 || attackTime > 9007199254740992)
         {
-            playerId = (long)reader.ReadVarUhLong();
-            if (playerId < 0 || playerId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + playerId + ") on element of GameRolePlayMonsterAngryAtPlayerMessage.playerId.");
-            }
+            throw new System.Exception("Forbidden value (" + attackTime + ") on element attackTime.");
+        }
 
-            monsterGroupId = (double)reader.ReadDouble();
-            if (monsterGroupId < -9007199254740992 || monsterGroupId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + monsterGroupId + ") on element of GameRolePlayMonsterAngryAtPlayerMessage.monsterGroupId.");
-            }
+        writer.WriteDouble((double)attackTime);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        playerId = (long)reader.ReadVarUhLong();
+        if (playerId < 0 || playerId > 9007199254740992)
+        {
+            throw new System.Exception("Forbidden value (" + playerId + ") on element of GameRolePlayMonsterAngryAtPlayerMessage.playerId.");
+        }
 
-            angryStartTime = (double)reader.ReadDouble();
-            if (angryStartTime < 0 || angryStartTime > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + angryStartTime + ") on element of GameRolePlayMonsterAngryAtPlayerMessage.angryStartTime.");
-            }
+        monsterGroupId = (double)reader.ReadDouble();
+        if (monsterGroupId < -9007199254740992 || monsterGroupId > 9007199254740992)
+        {
+            throw new System.Exception("Forbidden value (" + monsterGroupId + ") on element of GameRolePlayMonsterAngryAtPlayerMessage.monsterGroupId.");
+        }
 
-            attackTime = (double)reader.ReadDouble();
-            if (attackTime < 0 || attackTime > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + attackTime + ") on element of GameRolePlayMonsterAngryAtPlayerMessage.attackTime.");
-            }
+        angryStartTime = (double)reader.ReadDouble();
+        if (angryStartTime < 0 || angryStartTime > 9007199254740992)
+        {
+            throw new System.Exception("Forbidden value (" + angryStartTime + ") on element of GameRolePlayMonsterAngryAtPlayerMessage.angryStartTime.");
+        }
 
+        attackTime = (double)reader.ReadDouble();
+        if (attackTime < 0 || attackTime > 9007199254740992)
+        {
+            throw new System.Exception("Forbidden value (" + attackTime + ") on element of GameRolePlayMonsterAngryAtPlayerMessage.attackTime.");
         }
 
     }
+
 }
-
-

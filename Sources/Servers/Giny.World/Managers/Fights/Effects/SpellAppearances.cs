@@ -1,178 +1,172 @@
 ﻿using Giny.World.Managers.Entities.Look;
 using Giny.World.Managers.Fights.Fighters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects
+namespace Giny.World.Managers.Fights.Effects;
+
+public class SpellAppearances
 {
-    public class SpellAppearances
+    [SpellAppearance(0)]
+    public static void DefaultAppearence(Fighter fighter, ref ServerEntityLook look)
     {
-        [SpellAppearance(0)]
-        public static void DefaultAppearence(Fighter fighter, ref ServerEntityLook look)
+        look = fighter.BaseLook.Clone();
+    }
+    [SpellAppearance(729)]
+    public static void MomificationLook(Fighter fighter, ref ServerEntityLook look)
+    {
+        if (!look.IsRiding)
         {
-            look = fighter.BaseLook.Clone();
+            look.SetBones(113);
         }
-        [SpellAppearance(729)]
-        public static void MomificationLook(Fighter fighter, ref ServerEntityLook look)
+        else
         {
-            if (!look.IsRiding)
-            {
-                look.SetBones(113);
-            }
-            else
-            {
-                look.ActorLook.SetBones(1068);
-            }
+            look.ActorLook.SetBones(1068);
         }
-        [SpellAppearance(106)]
-        public static void CowardLook(Fighter fighter, ref ServerEntityLook look)
+    }
+    [SpellAppearance(106)]
+    public static void CowardLook(Fighter fighter, ref ServerEntityLook look)
+    {
+        if (!look.IsRiding)
         {
-            if (!look.IsRiding)
-            {
-                look.SetBones(1576);
-            }
-
-            if (fighter.Sex)
-            {
-                look.AddSkin(1450);
-            }
-            else
-            {
-                look.AddSkin(1449);
-            }
+            look.SetBones(1576);
         }
 
-        [SpellAppearance(105)]
-        public static void PsychopathLook(Fighter fighter, ref ServerEntityLook look)
+        if (fighter.Sex)
         {
-            if (!look.IsRiding)
-                look.SetBones(1575);
+            look.AddSkin(1450);
+        }
+        else
+        {
+            look.AddSkin(1449);
+        }
+    }
 
-            if (fighter.Sex)
-            {
-                look.AddSkin(1448);
-            }
-            else
-            {
-                look.AddSkin(1443);
-            }
-        }
+    [SpellAppearance(105)]
+    public static void PsychopathLook(Fighter fighter, ref ServerEntityLook look)
+    {
+        if (!look.IsRiding)
+            look.SetBones(1575);
 
-        [SpellAppearance(1318)]
-        public static void SentinelLook(Fighter fighter, ref ServerEntityLook look)
+        if (fighter.Sex)
         {
-            if (look.IsRiding)
-            {
-                look = look.ActorLook;
-            }
-            look.SetBones(4321);
+            look.AddSkin(1448);
         }
-        [SpellAppearance(1260)]
-        public static void OuginakDogLook(Fighter fighter, ref ServerEntityLook look)
+        else
         {
-            IEnumerable<int> colors = look.Colors;
-            look = EntityLookManager.Instance.CreateLookFromBones(3906, 150);
-            look.SetColors(colors);
+            look.AddSkin(1443);
         }
-        [SpellAppearance(1177)]
-        public static void SadidaTree(Fighter fighter, ref ServerEntityLook look)
-        {
-            look = EntityLookManager.Instance.CreateLookFromBones(3164, 80);
-        }
-        [SpellAppearance(1171)]
-        public static void SadidaLifeTree(Fighter fighter, ref ServerEntityLook look)
-        {
-            look = EntityLookManager.Instance.CreateLookFromBones(3166, 80);
-        }
-        /*
-         * Scaphandre
-         */
-        [SpellAppearance(1035)]
-        public static void SteamerDivingSuit(Fighter fighter, ref ServerEntityLook look)
-        {
-            look.AddSkin(1955);
-        }
+    }
 
-        [SpellAppearance(1326)]
-        public static void BambouPandawa(Fighter fighter, ref ServerEntityLook look)
+    [SpellAppearance(1318)]
+    public static void SentinelLook(Fighter fighter, ref ServerEntityLook look)
+    {
+        if (look.IsRiding)
         {
-            look.SetBones(4576);
+            look = look.ActorLook;
         }
-        [SpellAppearance(667)]
-        public static void DrunkedPandawa(Fighter fighter, ref ServerEntityLook look)
-        {
-            if (look.IsRiding)
-            {
-                look.SetBones(1084);
-            }
-            else
-            {
-                look.SetBones(44);
-            }
-        }
-        [SpellAppearance(1335)]
-        public static void OsamodasToad(Fighter fighter, ref ServerEntityLook look)
-        {
-            look = EntityLookManager.Instance.CreateLookFromBones(4811, 110);
-        }
-        [SpellAppearance(1236)]
-        public static void OsamodasBouftou(Fighter fighter, ref ServerEntityLook look)
-        {
-            look = EntityLookManager.Instance.CreateLookFromBones(3670, 60);
-        }
-        [SpellAppearance(1235)]
-        public static void OsamodasTofu(Fighter fighter, ref ServerEntityLook look)
-        {
-            look = EntityLookManager.Instance.CreateLookFromBones(3669, 130);
-        }
-        [SpellAppearance(1234)]
-        public static void OsamodasDragon(Fighter fighter, ref ServerEntityLook look)
-        {
-            look = EntityLookManager.Instance.CreateLookFromBones(3716, 150);
-        }
+        look.SetBones(4321);
+    }
+    [SpellAppearance(1260)]
+    public static void OuginakDogLook(Fighter fighter, ref ServerEntityLook look)
+    {
+        IEnumerable<int> colors = look.Colors;
+        look = EntityLookManager.Instance.CreateLookFromBones(3906, 150);
+        look.SetColors(colors);
+    }
+    [SpellAppearance(1177)]
+    public static void SadidaTree(Fighter fighter, ref ServerEntityLook look)
+    {
+        look = EntityLookManager.Instance.CreateLookFromBones(3164, 80);
+    }
+    [SpellAppearance(1171)]
+    public static void SadidaLifeTree(Fighter fighter, ref ServerEntityLook look)
+    {
+        look = EntityLookManager.Instance.CreateLookFromBones(3166, 80);
+    }
+    /*
+     * Scaphandre
+     */
+    [SpellAppearance(1035)]
+    public static void SteamerDivingSuit(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.AddSkin(1955);
+    }
 
-        [SpellAppearance(2061)]
-        public static void Appearence_2061(Fighter fighter, ref ServerEntityLook look)
+    [SpellAppearance(1326)]
+    public static void BambouPandawa(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.SetBones(4576);
+    }
+    [SpellAppearance(667)]
+    public static void DrunkedPandawa(Fighter fighter, ref ServerEntityLook look)
+    {
+        if (look.IsRiding)
         {
-            look.AddSkin(3650);
+            look.SetBones(1084);
         }
-        [SpellAppearance(2062)]
-        public static void Appearence_2062(Fighter fighter, ref ServerEntityLook look)
+        else
         {
-            look.SetBones(7156);
-            look.AddSkin(3650);
+            look.SetBones(44);
         }
+    }
+    [SpellAppearance(1335)]
+    public static void OsamodasToad(Fighter fighter, ref ServerEntityLook look)
+    {
+        look = EntityLookManager.Instance.CreateLookFromBones(4811, 110);
+    }
+    [SpellAppearance(1236)]
+    public static void OsamodasBouftou(Fighter fighter, ref ServerEntityLook look)
+    {
+        look = EntityLookManager.Instance.CreateLookFromBones(3670, 60);
+    }
+    [SpellAppearance(1235)]
+    public static void OsamodasTofu(Fighter fighter, ref ServerEntityLook look)
+    {
+        look = EntityLookManager.Instance.CreateLookFromBones(3669, 130);
+    }
+    [SpellAppearance(1234)]
+    public static void OsamodasDragon(Fighter fighter, ref ServerEntityLook look)
+    {
+        look = EntityLookManager.Instance.CreateLookFromBones(3716, 150);
+    }
 
-        [SpellAppearance(2160)]
-        public static void MutantLapinoSkin(Fighter fighter, ref ServerEntityLook look)
-        {
-            look.SetBones(7597);
-        }
+    [SpellAppearance(2061)]
+    public static void Appearence_2061(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.AddSkin(3650);
+    }
+    [SpellAppearance(2062)]
+    public static void Appearence_2062(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.SetBones(7156);
+        look.AddSkin(3650);
+    }
 
-        [SpellAppearance(1298)]
-        public static void BerserkSkin(Fighter fighter, ref ServerEntityLook look)
-        {
-            look.SetBones(4115);
-        }
+    [SpellAppearance(2160)]
+    public static void MutantLapinoSkin(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.SetBones(7597);
+    }
 
-        [SpellAppearance(1334)]
-        public static void JashninSkin(Fighter fighter, ref ServerEntityLook look)
-        {
-            look.SetBones(4828);
-        }
-        [SpellAppearance(1333)]
-        public static void HarmonySkin(Fighter fighter, ref ServerEntityLook look)
-        {
-            look.SetBones(4817);
-        }
+    [SpellAppearance(1298)]
+    public static void BerserkSkin(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.SetBones(4115);
+    }
 
-        [SpellAppearance(876)]
-        public static void BoufcoolSkin(Fighter fighter, ref ServerEntityLook look)
-        {
-            look.SetBones(485);
-        }
+    [SpellAppearance(1334)]
+    public static void JashninSkin(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.SetBones(4828);
+    }
+    [SpellAppearance(1333)]
+    public static void HarmonySkin(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.SetBones(4817);
+    }
+
+    [SpellAppearance(876)]
+    public static void BoufcoolSkin(Fighter fighter, ref ServerEntityLook look)
+    {
+        look.SetBones(485);
     }
 }

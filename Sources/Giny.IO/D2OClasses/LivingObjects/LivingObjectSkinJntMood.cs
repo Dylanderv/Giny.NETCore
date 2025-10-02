@@ -1,46 +1,41 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("LivingObjectSkinJntMood", "")]
+public class LivingObjectSkinJntMood : IDataObject, IIndexedData
 {
-    [D2OClass("LivingObjectSkinJntMood", "")]
-    public class LivingObjectSkinJntMood : IDataObject, IIndexedData
+    public const string MODULE = "LivingObjectSkinJntMood";
+
+    public int Id => throw new NotImplementedException();
+
+    public int skinId;
+    public List<List<int>> moods;
+
+    [D2OIgnore]
+    public int SkinId
     {
-        public const string MODULE = "LivingObjectSkinJntMood";
-
-        public int Id => throw new NotImplementedException();
-
-        public int skinId;
-        public List<List<int>> moods;
-
-        [D2OIgnore]
-        public int SkinId
+        get
         {
-            get
-            {
-                return skinId;
-            }
-            set
-            {
-                skinId = value;
-            }
+            return skinId;
         }
-        [D2OIgnore]
-        public List<List<int>> Moods
+        set
         {
-            get
-            {
-                return moods;
-            }
-            set
-            {
-                moods = value;
-            }
+            skinId = value;
         }
-
     }
-}
+    [D2OIgnore]
+    public List<List<int>> Moods
+    {
+        get
+        {
+            return moods;
+        }
+        set
+        {
+            moods = value;
+        }
+    }
 
+}

@@ -1,32 +1,27 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("EffectInstanceInteger", "")]
+public class EffectInstanceInteger : EffectInstance, IIndexedData
 {
-    [D2OClass("EffectInstanceInteger", "")]
-    public class EffectInstanceInteger : EffectInstance, IIndexedData
+
+    public int Id => throw new NotImplementedException();
+
+    public int value;
+
+    [D2OIgnore]
+    public int Value
     {
-
-        public int Id => throw new NotImplementedException();
-
-        public int value;
-
-        [D2OIgnore]
-        public int Value
+        get
         {
-            get
-            {
-                return value;
-            }
-            set
-            {
-                value = value;
-            }
+            return value;
         }
-
+        set
+        {
+            value = value;
+        }
     }
-}
 
+}

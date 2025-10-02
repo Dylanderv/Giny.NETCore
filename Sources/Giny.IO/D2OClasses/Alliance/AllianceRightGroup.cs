@@ -1,20 +1,15 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("AllianceRightGroup", "")]
+public class AllianceRightGroup : SocialRightGroup, IIndexedData
 {
-    [D2OClass("AllianceRightGroup", "")]
-    public class AllianceRightGroup : SocialRightGroup, IIndexedData
-    {
-        public const string MODULE = "AllianceRightGroups";
+    public const string MODULE = "AllianceRightGroups";
 
-        public int Id => throw new NotImplementedException();
+    public int Id => throw new NotImplementedException();
 
 
 
-    }
 }
-

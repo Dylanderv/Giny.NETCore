@@ -1,74 +1,67 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class TeleportToBuddyOfferMessage : NetworkMessage
 {
-    public class TeleportToBuddyOfferMessage : NetworkMessage
+    public const ushort Id = 8992;
+    public override ushort MessageId => Id;
+
+    public short dungeonId;
+    public long buddyId;
+    public int timeLeft;
+
+    public TeleportToBuddyOfferMessage()
     {
-        public const ushort Id = 8992;
-        public override ushort MessageId => Id;
-
-        public short dungeonId;
-        public long buddyId;
-        public int timeLeft;
-
-        public TeleportToBuddyOfferMessage()
+    }
+    public TeleportToBuddyOfferMessage(short dungeonId, long buddyId, int timeLeft)
+    {
+        this.dungeonId = dungeonId;
+        this.buddyId = buddyId;
+        this.timeLeft = timeLeft;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (dungeonId < 0)
         {
+            throw new System.Exception("Forbidden value (" + dungeonId + ") on element dungeonId.");
         }
-        public TeleportToBuddyOfferMessage(short dungeonId, long buddyId, int timeLeft)
+
+        writer.WriteVarShort((short)dungeonId);
+        if (buddyId < 0 || buddyId > 9007199254740992)
         {
-            this.dungeonId = dungeonId;
-            this.buddyId = buddyId;
-            this.timeLeft = timeLeft;
+            throw new System.Exception("Forbidden value (" + buddyId + ") on element buddyId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarLong((long)buddyId);
+        if (timeLeft < 0)
         {
-            if (dungeonId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + dungeonId + ") on element dungeonId.");
-            }
-
-            writer.WriteVarShort((short)dungeonId);
-            if (buddyId < 0 || buddyId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + buddyId + ") on element buddyId.");
-            }
-
-            writer.WriteVarLong((long)buddyId);
-            if (timeLeft < 0)
-            {
-                throw new System.Exception("Forbidden value (" + timeLeft + ") on element timeLeft.");
-            }
-
-            writer.WriteVarInt((int)timeLeft);
+            throw new System.Exception("Forbidden value (" + timeLeft + ") on element timeLeft.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        writer.WriteVarInt((int)timeLeft);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        dungeonId = (short)reader.ReadVarUhShort();
+        if (dungeonId < 0)
         {
-            dungeonId = (short)reader.ReadVarUhShort();
-            if (dungeonId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + dungeonId + ") on element of TeleportToBuddyOfferMessage.dungeonId.");
-            }
+            throw new System.Exception("Forbidden value (" + dungeonId + ") on element of TeleportToBuddyOfferMessage.dungeonId.");
+        }
 
-            buddyId = (long)reader.ReadVarUhLong();
-            if (buddyId < 0 || buddyId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + buddyId + ") on element of TeleportToBuddyOfferMessage.buddyId.");
-            }
+        buddyId = (long)reader.ReadVarUhLong();
+        if (buddyId < 0 || buddyId > 9007199254740992)
+        {
+            throw new System.Exception("Forbidden value (" + buddyId + ") on element of TeleportToBuddyOfferMessage.buddyId.");
+        }
 
-            timeLeft = (int)reader.ReadVarUhInt();
-            if (timeLeft < 0)
-            {
-                throw new System.Exception("Forbidden value (" + timeLeft + ") on element of TeleportToBuddyOfferMessage.timeLeft.");
-            }
-
+        timeLeft = (int)reader.ReadVarUhInt();
+        if (timeLeft < 0)
+        {
+            throw new System.Exception("Forbidden value (" + timeLeft + ") on element of TeleportToBuddyOfferMessage.timeLeft.");
         }
 
     }
+
 }
-
-

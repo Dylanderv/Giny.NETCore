@@ -2,53 +2,46 @@
 using Giny.World.Managers.Effects;
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
-using Giny.World.Records.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Cast
+namespace Giny.World.Managers.Fights.Effects.Cast;
+
+[SpellEffectHandler(EffectsEnum.Effect_SourceExecuteSpellOnSource)]
+public class SourceExecuteSpellOnSource : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_SourceExecuteSpellOnSource)]
-    public class SourceExecuteSpellOnSource : SpellEffectHandler
+    public SourceExecuteSpellOnSource(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public SourceExecuteSpellOnSource(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
-        {
 
+    }
+
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        Spell spell = CreateCastedSpell();
+
+        ITriggerToken token = this.GetTriggerToken<ITriggerToken>();
+
+        var source = Source;
+
+        if (token != null)
+        {
+            source = token.GetSource();
         }
 
-        protected override void Apply(IEnumerable<Fighter> targets)
+
+        for (int i = 0; i < targets.Count(); i++)
         {
-            Spell spell = CreateCastedSpell();
+            var targetCell = source.Cell;// // Ratrapry (Prisma) verify source.
 
-            ITriggerToken token = this.GetTriggerToken<ITriggerToken>();
-
-            var source = Source;
-
-            if (token != null)
+            if (token != null) // Dérobade, sram
             {
-                source = token.GetSource();
+                targetCell = token.GetSource().Cell;
             }
 
-
-            for (int i = 0; i < targets.Count(); i++)
-            {
-                var targetCell = source.Cell;// // Ratrapry (Prisma) verify source.
-
-                if (token != null) // Dérobade, sram
-                {
-                    targetCell = token.GetSource().Cell;
-                }
-
-                SpellCast cast = new SpellCast(source, spell, targetCell, CastHandler.Cast);
-                cast.Token = this.GetTriggerToken<ITriggerToken>();
-                cast.Force = true;
-                cast.Silent = true;
-                source.CastSpell(cast);
-            }
-
+            SpellCast cast = new SpellCast(source, spell, targetCell, CastHandler.Cast);
+            cast.Token = this.GetTriggerToken<ITriggerToken>();
+            cast.Force = true;
+            cast.Silent = true;
+            source.CastSpell(cast);
         }
+
     }
 }

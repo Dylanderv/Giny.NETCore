@@ -1,70 +1,63 @@
-﻿using Giny.Core.IO;
-using Giny.ORM.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Giny.ORM.Attributes;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.ORM
+namespace Giny.ORM;
+
+class QueryConstants
 {
-    class QueryConstants
+    public const string Create = "CREATE TABLE if not exists {0} ({1})";
+
+    public const string Drop = "DROP TABLE IF EXISTS {0}";
+
+    public const string Delete = "DELETE FROM {0}";
+
+    public const string Select = "SELECT * FROM `{0}`";
+
+    public const string SelectWhere = "SELECT * FROM `{0}` WHERE {1}";
+
+    public const string CountWhere = "SELECT COUNT(*) FROM `{0}` WHERE {1}";
+
+    public const string Count = "SELECT COUNT(*) FROM `{0}`";
+
+    public const string Insert = "INSERT INTO `{0}` VALUES {1}";
+
+    public const string UpdateWhere = "UPDATE `{0}` SET {1} WHERE {2}";
+
+    public const string DeleteWhere = "DELETE FROM `{0}` WHERE {1}";
+
+    public const string PrimaryKey = "PRIMARY KEY ({0})";
+
+    private static Dictionary<string, string> TypeMapping = new Dictionary<string, string>()
     {
-        public const string Create = "CREATE TABLE if not exists {0} ({1})";
+        { "String", "VARCHAR(255)" },
+        { "Int16", "SMALLINT" },
+        { "Int32", "INT" },
+        { "Int64", "BIGINT" },
+        { "Byte", "TINYINT" },
+    };
 
-        public const string Drop = "DROP TABLE IF EXISTS {0}";
+    private const string BinaryType = "BLOB";
 
-        public const string Delete = "DELETE FROM {0}";
+    private const string DefaultType = "MEDIUMTEXT";
 
-        public const string Select = "SELECT * FROM `{0}`";
 
-        public const string SelectWhere = "SELECT * FROM `{0}` WHERE {1}";
+    public static string ConvertType(PropertyInfo property)
+    {
+        var attribute = property.GetCustomAttribute<TypeOverrideAttribute>();
 
-        public const string CountWhere = "SELECT COUNT(*) FROM `{0}` WHERE {1}";
-
-        public const string Count = "SELECT COUNT(*) FROM `{0}`";
-
-        public const string Insert = "INSERT INTO `{0}` VALUES {1}";
-
-        public const string UpdateWhere = "UPDATE `{0}` SET {1} WHERE {2}";
-
-        public const string DeleteWhere = "DELETE FROM `{0}` WHERE {1}";
-
-        public const string PrimaryKey = "PRIMARY KEY ({0})";
-
-        private static Dictionary<string, string> TypeMapping = new Dictionary<string, string>()
+        if (attribute != null)
         {
-            { "String", "VARCHAR(255)" },
-            { "Int16", "SMALLINT" },
-            { "Int32", "INT" },
-            { "Int64", "BIGINT" },
-            { "Byte", "TINYINT" },
-        };
-
-        private const string BinaryType = "BLOB";
-
-        private const string DefaultType = "MEDIUMTEXT";
-
-
-        public static string ConvertType(PropertyInfo property)
-        {
-            var attribute = property.GetCustomAttribute<TypeOverrideAttribute>();
-
-            if (attribute != null)
-            {
-                return attribute.NewType;
-            }
-            else if (property.GetCustomAttribute<BlobAttribute>() != null)
-            {
-                return BinaryType;
-            }
-            else if (TypeMapping.ContainsKey(property.PropertyType.Name))
-            {
-                return TypeMapping[property.PropertyType.Name];
-            }
-
-            return DefaultType;
+            return attribute.NewType;
         }
+        else if (property.GetCustomAttribute<BlobAttribute>() != null)
+        {
+            return BinaryType;
+        }
+        else if (TypeMapping.ContainsKey(property.PropertyType.Name))
+        {
+            return TypeMapping[property.PropertyType.Name];
+        }
+
+        return DefaultType;
     }
 }

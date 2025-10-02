@@ -1,40 +1,34 @@
 ﻿using Giny.Protocol.Custom.Enums;
 using Giny.Protocol.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Stats
+namespace Giny.World.Managers.Stats;
+
+public abstract class UsableCharacteristic : DetailedCharacteristic
 {
-    public abstract class UsableCharacteristic : DetailedCharacteristic
+    public UsableCharacteristic()
     {
-        public UsableCharacteristic()
-        {
 
-        }
-        public UsableCharacteristic(int @base) : base(@base)
-        {
+    }
+    public UsableCharacteristic(int @base) : base(@base)
+    {
 
-        }
-        private short m_used;
+    }
+    private short m_used;
 
-        public short Used
+    public short Used
+    {
+        get
         {
-            get
-            {
-                return m_used;
-            }
-            set
-            {
-                m_used = value;
-            }
+            return m_used;
         }
-        public override CharacterCharacteristic GetCharacterCharacteristic(CharacteristicEnum characteristic)
+        set
         {
-            return new CharacterUsableCharacteristicDetailed(Math.Abs(Used), (short)characteristic, Base, Additional, ObjectsWithLimit,
-                0, Context);
+            m_used = value;
         }
+    }
+    public override CharacterCharacteristic GetCharacterCharacteristic(CharacteristicEnum characteristic)
+    {
+        return new CharacterUsableCharacteristicDetailed(Math.Abs(Used), (short)characteristic, Base, Additional, ObjectsWithLimit,
+            0, Context);
     }
 }

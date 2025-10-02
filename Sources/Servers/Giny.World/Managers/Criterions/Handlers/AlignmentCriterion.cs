@@ -1,25 +1,19 @@
 ﻿using Giny.Core.DesignPattern;
 using Giny.World.Managers.Criterias;
 using Giny.World.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Criterions.Handlers
+namespace Giny.World.Managers.Criterions.Handlers;
+
+[CriterionHandler("PP")]
+public class AlignmentCriterion : Criterion
 {
-    [CriterionHandler("PP")]
-    public class AlignmentCriterion : Criterion
+    public AlignmentCriterion(string criteriaFull) : base(criteriaFull)
     {
-        public AlignmentCriterion(string criteriaFull) : base(criteriaFull)
-        {
-        }
+    }
 
-        [Annotation] // alignement
-        public override bool Eval(WorldClient client)
-        {
-            return false;
-        }
+    [Annotation] // alignement
+    public override bool Eval(WorldClient client)
+    {
+        return false;
     }
 }

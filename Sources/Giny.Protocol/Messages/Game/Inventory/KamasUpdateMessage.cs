@@ -1,46 +1,39 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class KamasUpdateMessage : NetworkMessage
 {
-    public class KamasUpdateMessage : NetworkMessage
+    public const ushort Id = 5667;
+    public override ushort MessageId => Id;
+
+    public long kamasTotal;
+
+    public KamasUpdateMessage()
     {
-        public const ushort Id = 5667;
-        public override ushort MessageId => Id;
-
-        public long kamasTotal;
-
-        public KamasUpdateMessage()
+    }
+    public KamasUpdateMessage(long kamasTotal)
+    {
+        this.kamasTotal = kamasTotal;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (kamasTotal < 0 || kamasTotal > 9007199254740992)
         {
+            throw new System.Exception("Forbidden value (" + kamasTotal + ") on element kamasTotal.");
         }
-        public KamasUpdateMessage(long kamasTotal)
-        {
-            this.kamasTotal = kamasTotal;
-        }
-        public override void Serialize(IDataWriter writer)
-        {
-            if (kamasTotal < 0 || kamasTotal > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + kamasTotal + ") on element kamasTotal.");
-            }
 
-            writer.WriteVarLong((long)kamasTotal);
-        }
-        public override void Deserialize(IDataReader reader)
+        writer.WriteVarLong((long)kamasTotal);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        kamasTotal = (long)reader.ReadVarUhLong();
+        if (kamasTotal < 0 || kamasTotal > 9007199254740992)
         {
-            kamasTotal = (long)reader.ReadVarUhLong();
-            if (kamasTotal < 0 || kamasTotal > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + kamasTotal + ") on element of KamasUpdateMessage.kamasTotal.");
-            }
-
+            throw new System.Exception("Forbidden value (" + kamasTotal + ") on element of KamasUpdateMessage.kamasTotal.");
         }
 
     }
+
 }
-
-

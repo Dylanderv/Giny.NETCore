@@ -2,54 +2,48 @@
 using Giny.World.Managers.Criterions.Handlers;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Criterions
+namespace Giny.World.Managers.Criterions;
+
+public class CriterionNode : Node
 {
-    public class CriterionNode : Node
+    public string Criterion
     {
-        public string Criterion
-        {
-            get;
-            private set;
-        }
-
-        public Criterion CriterionHandler
-        {
-            get;
-            private set;
-        }
-
-
-        public CriterionNode(string criterion)
-        {
-            this.Criterion = criterion;
-            this.CriterionHandler = CriteriasManager.Instance.GetCriteriaHandler(criterion);
-        }
-
-        public override bool Eval(WorldClient client)
-        {
-            return CriterionHandler.Eval(client);
-        }
-        public override bool Eval(Fighter fighter)
-        {
-            return CriterionHandler.Eval(fighter);
-        }
-
-        public override string ToString()
-        {
-            return this.Criterion;
-        }
-
-        public override IEnumerable<Criterion> FindCriterionHandlers()
-        {
-            return new Criterion[] { CriterionHandler };
-        }
-
-
+        get;
+        private set;
     }
+
+    public Criterion CriterionHandler
+    {
+        get;
+        private set;
+    }
+
+
+    public CriterionNode(string criterion)
+    {
+        this.Criterion = criterion;
+        this.CriterionHandler = CriteriasManager.Instance.GetCriteriaHandler(criterion);
+    }
+
+    public override bool Eval(WorldClient client)
+    {
+        return CriterionHandler.Eval(client);
+    }
+    public override bool Eval(Fighter fighter)
+    {
+        return CriterionHandler.Eval(fighter);
+    }
+
+    public override string ToString()
+    {
+        return this.Criterion;
+    }
+
+    public override IEnumerable<Criterion> FindCriterionHandlers()
+    {
+        return new Criterion[] { CriterionHandler };
+    }
+
+
 }

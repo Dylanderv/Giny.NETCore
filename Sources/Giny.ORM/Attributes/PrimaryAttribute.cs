@@ -1,12 +1,9 @@
-﻿using System;
+﻿namespace Giny.ORM.Attributes;
 
-namespace Giny.ORM.Attributes
+public class PrimaryAttribute : Attribute
 {
-    public class PrimaryAttribute : Attribute
+    public PrimaryAttribute()
     {
-        public PrimaryAttribute()
-        {
 
-        }
     }
 }

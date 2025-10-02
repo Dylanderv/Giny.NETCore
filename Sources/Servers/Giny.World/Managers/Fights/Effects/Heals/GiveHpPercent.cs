@@ -4,36 +4,30 @@ using Giny.World.Managers.Effects;
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Managers.Fights.Units;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Heals
+namespace Giny.World.Managers.Fights.Effects.Heals;
+
+[SpellEffectHandler(EffectsEnum.Effect_GiveHPPercent)]
+public class GiveHpPercent : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_GiveHPPercent)]
-    public class GiveHpPercent : SpellEffectHandler
+    public GiveHpPercent(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public GiveHpPercent(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
+
+    }
+
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        double delta = Source.Stats.LifePoints * (Effect.Min / 100d);
+
+        Damage damage = new Damage(Source, Source, EffectElementEnum.None, delta, delta, this, true);
+        damage.IgnoreShield = true;
+        Source.InflictDamage(damage);
+
+        foreach (var target in targets)
         {
-
-        }
-
-        protected override void Apply(IEnumerable<Fighter> targets)
-        {
-            double delta = Source.Stats.LifePoints * (Effect.Min / 100d);
-
-            Damage damage = new Damage(Source, Source, EffectElementEnum.None, delta, delta, this, true);
-            damage.IgnoreShield = true;
-            Source.InflictDamage(damage);
-
-            foreach (var target in targets)
+            if (target != Source)
             {
-                if (target != Source)
-                {
-                    target.Heal(new Healing(Source, target, EffectElementEnum.None, delta, delta, this, true));
-                }
+                target.Heal(new Healing(Source, target, EffectElementEnum.None, delta, delta, this, true));
             }
         }
     }

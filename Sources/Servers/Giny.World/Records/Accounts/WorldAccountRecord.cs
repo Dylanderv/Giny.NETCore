@@ -1,59 +1,53 @@
 ﻿using Giny.ORM.Attributes;
 using Giny.ORM.Interfaces;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Records.Accounts
+namespace Giny.World.Records.Accounts;
+
+[Table("world_accounts")]
+public class WorldAccountRecord : IRecord
 {
-    [Table("world_accounts")]
-    public class WorldAccountRecord : IRecord
+    [Container]
+    private static readonly ConcurrentDictionary<long, WorldAccountRecord> WorldAccounts = new ConcurrentDictionary<long, WorldAccountRecord>();
+
+    [Ignore]
+    public long Id => AccountId;
+
+    [Primary]
+    public int AccountId
     {
-        [Container]
-        private static readonly ConcurrentDictionary<long, WorldAccountRecord> WorldAccounts = new ConcurrentDictionary<long, WorldAccountRecord>();
+        get;
+        set;
+    }
 
-        [Ignore]
-        public long Id => AccountId;
-
-        [Primary]
-        public int AccountId
-        {
-            get;
-            set;
-        }
-
-        [Update]
-        public long BankKamas
-        {
-            get;
-            set;
-        }
+    [Update]
+    public long BankKamas
+    {
+        get;
+        set;
+    }
         
-        public static WorldAccountRecord GetWorldAccount(int accountId)
+    public static WorldAccountRecord GetWorldAccount(int accountId)
+    {
+        WorldAccountRecord account = null;
+        if (WorldAccounts.TryGetValue(accountId, out account))
         {
-            WorldAccountRecord account = null;
-            if (WorldAccounts.TryGetValue(accountId, out account))
-            {
-                return account;
-            }
-            else
-            {
-                return null;
-            }
-
+            return account;
         }
-        public static WorldAccountRecord Create(int accountId)
+        else
         {
-            return new WorldAccountRecord()
-            {
-                AccountId = accountId,
-                BankKamas = 0,
-            };
+            return null;
         }
-
 
     }
+    public static WorldAccountRecord Create(int accountId)
+    {
+        return new WorldAccountRecord()
+        {
+            AccountId = accountId,
+            BankKamas = 0,
+        };
+    }
+
+
 }

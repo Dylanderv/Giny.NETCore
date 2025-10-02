@@ -1,26 +1,19 @@
-﻿using Giny.Protocol.Custom.Enums;
-using Giny.Protocol.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Giny.Protocol.Enums;
 
-namespace Giny.World.Managers.Fights.Cast
+namespace Giny.World.Managers.Fights.Cast;
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public class SpellEffectHandlerAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class SpellEffectHandlerAttribute : Attribute
+    public EffectsEnum Effect
     {
-        public EffectsEnum Effect
-        {
-            get;
-            set;
-        }
-
-        public SpellEffectHandlerAttribute(EffectsEnum effect)
-        {
-            this.Effect = effect;
-        }
-
+        get;
+        set;
     }
+
+    public SpellEffectHandlerAttribute(EffectsEnum effect)
+    {
+        this.Effect = effect;
+    }
+
 }

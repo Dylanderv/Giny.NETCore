@@ -1,12 +1,8 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum ForgettableSpellListActionEnum
 {
-    public enum ForgettableSpellListActionEnum
-    {
-        FORGETTABLE_SPELL_LIST_DISPATCH = 0,
-        FORGETTABLE_SPELL_LIST_UPDATE = 1,
+    FORGETTABLE_SPELL_LIST_DISPATCH = 0,
+    FORGETTABLE_SPELL_LIST_UPDATE = 1,
 
-    }
 }
-

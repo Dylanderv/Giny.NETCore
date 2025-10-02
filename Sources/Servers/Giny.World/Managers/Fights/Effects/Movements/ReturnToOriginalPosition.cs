@@ -2,27 +2,21 @@
 using Giny.World.Managers.Effects;
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Movements
+namespace Giny.World.Managers.Fights.Effects.Movements;
+
+[SpellEffectHandler(EffectsEnum.Effect_ReturnToOriginalPos)]
+public class ReturnToOriginalPosition : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_ReturnToOriginalPos)]
-    public class ReturnToOriginalPosition : SpellEffectHandler
+    public ReturnToOriginalPosition(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public ReturnToOriginalPosition(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
-        {
-        }
+    }
 
-        protected override void Apply(IEnumerable<Fighter> targets)
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        foreach (var target in targets)
         {
-            foreach (var target in targets)
-            {
-                target.Teleport(Source, target.FightStartCell);
-            }
+            target.Teleport(Source, target.FightStartCell);
         }
     }
 }

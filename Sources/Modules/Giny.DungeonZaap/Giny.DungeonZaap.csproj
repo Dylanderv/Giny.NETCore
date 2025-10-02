@@ -10,8 +10,9 @@
     <ProjectReference Include="..\..\Servers\Giny.World\Giny.World.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cp &quot;$(TargetDir)Giny.DungeonZaap.dll&quot; &quot;$(SolutionDir)\Servers\Giny.World\bin\Debug\net8.0\Modules\Giny.DungeonZaap.dll&quot;" />
-  </Target>
+<!--  <Target Name="PostBuild" AfterTargets="PostBuildEvent">-->
+<!--    <Exec Condition="'$(IsWindows)'=='true'" Command="copy &quot;$(TargetDir)Giny.DungeonZaap.dll&quot; &quot;$(SolutionDir)Servers\Giny.World\bin\Debug\net8.0\Modules\Giny.DungeonZaap.dll&quot;" />-->
+<!--    <Exec Condition="'$(IsWindows)'=='false'" Command="cp &quot;$(TargetDir)Giny.DungeonZaap.dll&quot; &quot;$(SolutionDir)/Servers/Giny.World/bin/Debug/net8.0/Modules/Giny.DungeonZaap.dll&quot;" />-->
+<!--  </Target>-->
 
 </Project>

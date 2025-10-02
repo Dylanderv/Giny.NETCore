@@ -1,13 +1,9 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum PaddockCommercialEventTypeEnum
 {
-    public enum PaddockCommercialEventTypeEnum
-    {
-        BUY = 0,
-        PUT_ON_SELL = 1,
-        SOLD = 2,
+    BUY = 0,
+    PUT_ON_SELL = 1,
+    SOLD = 2,
 
-    }
 }
-

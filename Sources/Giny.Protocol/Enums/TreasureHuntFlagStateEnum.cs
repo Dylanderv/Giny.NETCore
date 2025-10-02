@@ -1,13 +1,9 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum TreasureHuntFlagStateEnum
 {
-    public enum TreasureHuntFlagStateEnum
-    {
-        TREASURE_HUNT_FLAG_STATE_UNKNOWN = 0,
-        TREASURE_HUNT_FLAG_STATE_OK = 1,
-        TREASURE_HUNT_FLAG_STATE_WRONG = 2,
+    TREASURE_HUNT_FLAG_STATE_UNKNOWN = 0,
+    TREASURE_HUNT_FLAG_STATE_OK = 1,
+    TREASURE_HUNT_FLAG_STATE_WRONG = 2,
 
-    }
 }
-

@@ -1,88 +1,80 @@
-﻿using Giny.Core;
-using Giny.Core.DesignPattern;
+﻿using Giny.Core.DesignPattern;
 using Giny.World.Managers.Entities.Characters;
 using Giny.World.Modules;
-using Giny.World.Records.Npcs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Generic
+namespace Giny.World.Managers.Generic;
+
+public class GenericActionsManager : Singleton<GenericActionsManager>
 {
-    public class GenericActionsManager : Singleton<GenericActionsManager>
-    {
-        private Dictionary<GenericActionEnum, MethodInfo> m_handlers = new Dictionary<GenericActionEnum, MethodInfo>();
+    private Dictionary<GenericActionEnum, MethodInfo> m_handlers = new Dictionary<GenericActionEnum, MethodInfo>();
 
-        [StartupInvoke(StartupInvokePriority.SixthPath)]
-        public void Initialize()
+    [StartupInvoke(StartupInvokePriority.SixthPath)]
+    public void Initialize()
+    {
+        foreach (var type in AssemblyCore.GetTypes())
         {
-            foreach (var type in AssemblyCore.GetTypes())
+            foreach (var method in type.GetMethods())
             {
-                foreach (var method in type.GetMethods())
+                var attribute = method.GetCustomAttribute<GenericActionHandlerAttribute>();
+
+                if (attribute != null)
                 {
-                    var attribute = method.GetCustomAttribute<GenericActionHandlerAttribute>();
-
-                    if (attribute != null)
-                    {
-                        m_handlers.Add(attribute.ActionEnum, method);
-                    }
+                    m_handlers.Add(attribute.ActionEnum, method);
                 }
+            }
               
-            }
-        }
-        public bool IsHandled(IGenericAction parameter)
-        {
-            return m_handlers.ContainsKey(parameter.ActionIdentifier);
-        }
-        public bool Handle(Character character, IGenericAction parameter)
-        {
-            if (m_handlers.ContainsKey(parameter.ActionIdentifier))
-            {
-                MethodInfo handler = m_handlers[parameter.ActionIdentifier];
-
-                handler.Invoke(null, new object[] { character, parameter });
-                return true;
-            }
-            else
-            {
-                character.ReplyWarning("Unknown action identifier: " + parameter.ActionIdentifier);
-                return false;
-            }
         }
     }
-    public class GenericActionInvoker
+    public bool IsHandled(IGenericAction parameter)
     {
-        public MethodInfo Method
+        return m_handlers.ContainsKey(parameter.ActionIdentifier);
+    }
+    public bool Handle(Character character, IGenericAction parameter)
+    {
+        if (m_handlers.ContainsKey(parameter.ActionIdentifier))
         {
-            get;
-            private set;
-        }
-        public int ParametersCount
-        {
-            get;
-            private set;
-        }
+            MethodInfo handler = m_handlers[parameter.ActionIdentifier];
 
-        public GenericActionInvoker(MethodInfo method, int parametersCount)
+            handler.Invoke(null, new object[] { character, parameter });
+            return true;
+        }
+        else
         {
-            this.Method = method;
-            this.ParametersCount = parametersCount;
+            character.ReplyWarning("Unknown action identifier: " + parameter.ActionIdentifier);
+            return false;
         }
     }
-    [AttributeUsage(AttributeTargets.Method)]
-    public class GenericActionHandlerAttribute : Attribute
+}
+public class GenericActionInvoker
+{
+    public MethodInfo Method
     {
-        public GenericActionEnum ActionEnum
-        {
-            get;
-            private set;
-        }
-        public GenericActionHandlerAttribute(GenericActionEnum actionEnum)
-        {
-            this.ActionEnum = actionEnum;
-        }
+        get;
+        private set;
+    }
+    public int ParametersCount
+    {
+        get;
+        private set;
+    }
+
+    public GenericActionInvoker(MethodInfo method, int parametersCount)
+    {
+        this.Method = method;
+        this.ParametersCount = parametersCount;
+    }
+}
+[AttributeUsage(AttributeTargets.Method)]
+public class GenericActionHandlerAttribute : Attribute
+{
+    public GenericActionEnum ActionEnum
+    {
+        get;
+        private set;
+    }
+    public GenericActionHandlerAttribute(GenericActionEnum actionEnum)
+    {
+        this.ActionEnum = actionEnum;
     }
 }

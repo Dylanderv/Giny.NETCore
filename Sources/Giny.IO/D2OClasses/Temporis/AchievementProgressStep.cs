@@ -1,98 +1,93 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("AchievementProgressStep", "")]
+public class AchievementProgressStep : IDataObject, IIndexedData
 {
-    [D2OClass("AchievementProgressStep", "")]
-    public class AchievementProgressStep : IDataObject, IIndexedData
+    public const string MODULE = "AchievementProgressSteps";
+
+    public int Id => (int)id;
+
+    public int id;
+    public int progressId;
+    public int score;
+    public bool isCosmetic;
+    public int achievementId;
+    public bool isBuyable;
+
+    [D2OIgnore]
+    public int Id_
     {
-        public const string MODULE = "AchievementProgressSteps";
-
-        public int Id => (int)id;
-
-        public int id;
-        public int progressId;
-        public int score;
-        public bool isCosmetic;
-        public int achievementId;
-        public bool isBuyable;
-
-        [D2OIgnore]
-        public int Id_
+        get
         {
-            get
-            {
-                return id;
-            }
-            set
-            {
-                id = value;
-            }
+            return id;
         }
-        [D2OIgnore]
-        public int ProgressId
+        set
         {
-            get
-            {
-                return progressId;
-            }
-            set
-            {
-                progressId = value;
-            }
+            id = value;
         }
-        [D2OIgnore]
-        public int Score
-        {
-            get
-            {
-                return score;
-            }
-            set
-            {
-                score = value;
-            }
-        }
-        [D2OIgnore]
-        public bool IsCosmetic
-        {
-            get
-            {
-                return isCosmetic;
-            }
-            set
-            {
-                isCosmetic = value;
-            }
-        }
-        [D2OIgnore]
-        public int AchievementId
-        {
-            get
-            {
-                return achievementId;
-            }
-            set
-            {
-                achievementId = value;
-            }
-        }
-        [D2OIgnore]
-        public bool IsBuyable
-        {
-            get
-            {
-                return isBuyable;
-            }
-            set
-            {
-                isBuyable = value;
-            }
-        }
-
     }
-}
+    [D2OIgnore]
+    public int ProgressId
+    {
+        get
+        {
+            return progressId;
+        }
+        set
+        {
+            progressId = value;
+        }
+    }
+    [D2OIgnore]
+    public int Score
+    {
+        get
+        {
+            return score;
+        }
+        set
+        {
+            score = value;
+        }
+    }
+    [D2OIgnore]
+    public bool IsCosmetic
+    {
+        get
+        {
+            return isCosmetic;
+        }
+        set
+        {
+            isCosmetic = value;
+        }
+    }
+    [D2OIgnore]
+    public int AchievementId
+    {
+        get
+        {
+            return achievementId;
+        }
+        set
+        {
+            achievementId = value;
+        }
+    }
+    [D2OIgnore]
+    public bool IsBuyable
+    {
+        get
+        {
+            return isBuyable;
+        }
+        set
+        {
+            isBuyable = value;
+        }
+    }
 
+}

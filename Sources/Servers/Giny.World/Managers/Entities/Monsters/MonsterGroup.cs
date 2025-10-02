@@ -8,214 +8,205 @@ using Giny.World.Managers.Entities;
 using Giny.World.Managers.Entities.Characters;
 using Giny.World.Managers.Entities.Look;
 using Giny.World.Managers.Fights;
-using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Managers.Fights.Zones;
 using Giny.World.Managers.Maps.Paths;
 using Giny.World.Records.Maps;
-using Giny.World.Records.Monsters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Monsters
+namespace Giny.World.Managers.Monsters;
+
+public class MonsterGroup : Entity
 {
-    public class MonsterGroup : Entity
+    protected readonly List<Monster> Monsters = new List<Monster>();
+
+    public int MonsterCount
     {
-        protected readonly List<Monster> Monsters = new List<Monster>();
-
-        public int MonsterCount
+        get
         {
-            get
+            return Monsters.Count;
+        }
+    }
+
+
+    public MonsterGroup(MapRecord map, short cellId) : base(map)
+    {
+        this.CellId = cellId;
+        this.m_UId = Map.Instance.PopNextNPEntityId();
+        this.CreationDate = DateTime.Now;
+        this.CanBeAggressed = true;
+    }
+
+    public override string Name
+    {
+        get
+        {
+            return Leader.Record.Name;
+        }
+    }
+
+    public bool CanBeAggressed
+    {
+        get;
+        set;
+    }
+
+    private long m_UId;
+
+    public override long Id
+    {
+        get
+        {
+            return m_UId;
+        }
+    }
+
+    public override short CellId
+    {
+        get;
+        set;
+    }
+
+    public DateTime CreationDate
+    {
+        get;
+        set;
+    }
+    public override DirectionsEnum Direction
+    {
+        get;
+        set;
+    }
+
+    public override ServerEntityLook Look
+    {
+        get { return Leader.Look; }
+        set { return; }
+    }
+
+    public Monster Leader
+    {
+        get;
+        private set;
+    }
+    public virtual bool RespawnOnVictory => true;
+
+    public void AddMonster(Monster monster)
+    {
+        Monsters.Add(monster);
+
+        if (Monsters.Count == 1)
+            this.Leader = monster;
+    }
+    public IEnumerable<Monster> GetMonsters()
+    {
+        return Monsters;
+    }
+    private void Move(List<short> keys)
+    {
+        this.Map.Instance.Send(new GameMapMovementMessage(keys.ToArray(), 1, Id));
+        this.CellId = keys.Last();
+    }
+
+    [Annotation]
+    public void MoveRandomly()
+    {
+        Random random = new Random();
+
+        Lozenge lozenge = new Lozenge(1, 5);
+
+        var centerCell = Map.GetCell(CellId);
+        CellRecord cell = lozenge.GetCells(centerCell, centerCell, Map).Where((CellRecord entry) => entry.Walkable).Random(random);
+
+        if (cell != null)
+        {
+            Pathfinding pathfinder = new Pathfinding(Map);
+
+            var cells = pathfinder.FindPath(this.CellId, cell.Id);
+
+            if (cells != null && cells.Count > 0)
             {
-                return Monsters.Count;
+                cells.Insert(0, (short)this.CellId);
+                this.Move(cells);
             }
         }
+    }
 
+    public MonsterInGroupInformations[] GetMonsterInGroupInformations()
+    {
+        return Monsters.FindAll(x => x != Leader).ConvertAll<MonsterInGroupInformations>(x => x.GetMonsterInGroupInformations()).ToArray();
+    }
 
-        public MonsterGroup(MapRecord map, short cellId) : base(map)
+    public virtual GroupMonsterStaticInformations GetGroupMonsterStaticInformations()
+    {
+        return new GroupMonsterStaticInformations()
         {
-            this.CellId = cellId;
-            this.m_UId = Map.Instance.PopNextNPEntityId();
-            this.CreationDate = DateTime.Now;
-            this.CanBeAggressed = true;
+            mainCreatureLightInfos = Leader.GetMonsterInGroupLightInformations(),
+            underlings = GetMonsterInGroupInformations(),
+        };
+    }
+    public virtual IEnumerable<Fighter> CreateFighters(FightTeam team)
+    {
+        return Monsters.Select(x => x.CreateFighter(team));
+    }
+    public override GameRolePlayActorInformations GetActorInformations(Character target)
+    {
+        return new GameRolePlayGroupMonsterInformations()
+        {
+            contextualId = Id,
+            alignmentSide = 0,
+            disposition = new EntityDispositionInformations(CellId, (byte)Direction),
+            hasHardcoreDrop = false,
+            look = Look.ToEntityLook(),
+            lootShare = 0,
+            staticInfos = GetGroupMonsterStaticInformations(),
+        };
+    }
+    public override string ToString()
+    {
+        return "Monsters (" + Name + "' group)";
+    }
+
+    public virtual void OnAggressed()
+    {
+
+    }
+
+    public void Agress(Character character)
+    {
+        if (!CanBeAggressed)
+        {
+            character.TextInformation(TextInformationTypeEnum.TEXT_INFORMATION_ERROR, 293);
+            return;
         }
 
-        public override string Name
+        if (Map.BlueCells.Count >= MonsterCount && Map.RedCells.Count() >= character.FighterCount)
         {
-            get
+            character.Map.Instance.RemoveEntity(Id);
+
+            CellRecord cell = character.Map.GetCell(CellId);
+
+            FightPvM fight = FightManager.Instance.CreateFightPvM(character, this, Map, cell);
+
+            foreach (var monsterFighter in CreateFighters(fight.BlueTeam))
             {
-                return Leader.Record.Name;
-            }
-        }
-
-        public bool CanBeAggressed
-        {
-            get;
-            set;
-        }
-
-        private long m_UId;
-
-        public override long Id
-        {
-            get
-            {
-                return m_UId;
-            }
-        }
-
-        public override short CellId
-        {
-            get;
-            set;
-        }
-
-        public DateTime CreationDate
-        {
-            get;
-            set;
-        }
-        public override DirectionsEnum Direction
-        {
-            get;
-            set;
-        }
-
-        public override ServerEntityLook Look
-        {
-            get { return Leader.Look; }
-            set { return; }
-        }
-
-        public Monster Leader
-        {
-            get;
-            private set;
-        }
-        public virtual bool RespawnOnVictory => true;
-
-        public void AddMonster(Monster monster)
-        {
-            Monsters.Add(monster);
-
-            if (Monsters.Count == 1)
-                this.Leader = monster;
-        }
-        public IEnumerable<Monster> GetMonsters()
-        {
-            return Monsters;
-        }
-        private void Move(List<short> keys)
-        {
-            this.Map.Instance.Send(new GameMapMovementMessage(keys.ToArray(), 1, Id));
-            this.CellId = keys.Last();
-        }
-
-        [Annotation]
-        public void MoveRandomly()
-        {
-            Random random = new Random();
-
-            Lozenge lozenge = new Lozenge(1, 5);
-
-            var centerCell = Map.GetCell(CellId);
-            CellRecord cell = lozenge.GetCells(centerCell, centerCell, Map).Where((CellRecord entry) => entry.Walkable).Random(random);
-
-            if (cell != null)
-            {
-                Pathfinding pathfinder = new Pathfinding(Map);
-
-                var cells = pathfinder.FindPath(this.CellId, cell.Id);
-
-                if (cells != null && cells.Count > 0)
-                {
-                    cells.Insert(0, (short)this.CellId);
-                    this.Move(cells);
-                }
-            }
-        }
-
-        public MonsterInGroupInformations[] GetMonsterInGroupInformations()
-        {
-            return Monsters.FindAll(x => x != Leader).ConvertAll<MonsterInGroupInformations>(x => x.GetMonsterInGroupInformations()).ToArray();
-        }
-
-        public virtual GroupMonsterStaticInformations GetGroupMonsterStaticInformations()
-        {
-            return new GroupMonsterStaticInformations()
-            {
-                mainCreatureLightInfos = Leader.GetMonsterInGroupLightInformations(),
-                underlings = GetMonsterInGroupInformations(),
-            };
-        }
-        public virtual IEnumerable<Fighter> CreateFighters(FightTeam team)
-        {
-            return Monsters.Select(x => x.CreateFighter(team));
-        }
-        public override GameRolePlayActorInformations GetActorInformations(Character target)
-        {
-            return new GameRolePlayGroupMonsterInformations()
-            {
-                contextualId = Id,
-                alignmentSide = 0,
-                disposition = new EntityDispositionInformations(CellId, (byte)Direction),
-                hasHardcoreDrop = false,
-                look = Look.ToEntityLook(),
-                lootShare = 0,
-                staticInfos = GetGroupMonsterStaticInformations(),
-            };
-        }
-        public override string ToString()
-        {
-            return "Monsters (" + Name + "' group)";
-        }
-
-        public virtual void OnAggressed()
-        {
-
-        }
-
-        public void Agress(Character character)
-        {
-            if (!CanBeAggressed)
-            {
-                character.TextInformation(TextInformationTypeEnum.TEXT_INFORMATION_ERROR, 293);
-                return;
+                fight.BlueTeam.AddFighter(monsterFighter);
             }
 
-            if (Map.BlueCells.Count >= MonsterCount && Map.RedCells.Count() >= character.FighterCount)
-            {
-                character.Map.Instance.RemoveEntity(Id);
+            fight.RedTeam.AddFighter(character.CreateFighter(fight.RedTeam));
 
-                CellRecord cell = character.Map.GetCell(CellId);
+            fight.StartPlacement();
 
-                FightPvM fight = FightManager.Instance.CreateFightPvM(character, this, Map, cell);
+            OnAggressed();
 
-                foreach (var monsterFighter in CreateFighters(fight.BlueTeam))
-                {
-                    fight.BlueTeam.AddFighter(monsterFighter);
-                }
-
-                fight.RedTeam.AddFighter(character.CreateFighter(fight.RedTeam));
-
-                fight.StartPlacement();
-
-                OnAggressed();
-
-            }
-            else
-            {
-                character.TextInformation(TextInformationTypeEnum.TEXT_INFORMATION_ERROR, 456);
-            }
         }
-
-        public virtual void OnFightStarted(FightPvM fight)
+        else
         {
-
+            character.TextInformation(TextInformationTypeEnum.TEXT_INFORMATION_ERROR, 456);
         }
+    }
+
+    public virtual void OnFightStarted(FightPvM fight)
+    {
+
     }
 }

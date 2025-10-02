@@ -3,34 +3,28 @@ using Giny.World.Managers.Effects;
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Managers.Fights.Units;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Damages
+namespace Giny.World.Managers.Fights.Effects.Damages;
+
+[SpellEffectHandler(EffectsEnum.Effect_DamageWorstElement)]
+public class DamageWorstElement : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_DamageWorstElement)]
-    public class DamageWorstElement : SpellEffectHandler
+    protected override bool Reveals => true;
+
+    public DamageWorstElement(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        protected override bool Reveals => true;
 
-        public DamageWorstElement(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
-        {
+    }
 
-        }
-
-        protected override void Apply(IEnumerable<Fighter> targets)
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        foreach (var fighter in targets)
         {
-            foreach (var fighter in targets)
-            {
-                fighter.InflictDamage(CreateDamage(fighter));
-            }
+            fighter.InflictDamage(CreateDamage(fighter));
         }
-        private Damage CreateDamage(Fighter target)
-        {
-            return new Damage(Source, target, Source.Stats.GetWorstElement(), (short)Effect.Min, (short)Effect.Max, this);
-        }
+    }
+    private Damage CreateDamage(Fighter target)
+    {
+        return new Damage(Source, target, Source.Stats.GetWorstElement(), (short)Effect.Min, (short)Effect.Max, this);
     }
 }

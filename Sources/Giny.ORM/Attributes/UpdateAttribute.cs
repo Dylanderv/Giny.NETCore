@@ -1,12 +1,9 @@
-﻿using System;
+﻿namespace Giny.ORM.Attributes;
 
-namespace Giny.ORM.Attributes
+public class UpdateAttribute : Attribute
 {
-    public class UpdateAttribute : Attribute
+    public UpdateAttribute()
     {
-        public UpdateAttribute()
-        {
 
-        }
     }
 }

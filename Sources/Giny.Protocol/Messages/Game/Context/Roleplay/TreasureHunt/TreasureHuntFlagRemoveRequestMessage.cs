@@ -1,55 +1,48 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class TreasureHuntFlagRemoveRequestMessage : NetworkMessage
 {
-    public class TreasureHuntFlagRemoveRequestMessage : NetworkMessage
+    public const ushort Id = 6564;
+    public override ushort MessageId => Id;
+
+    public byte questType;
+    public byte index;
+
+    public TreasureHuntFlagRemoveRequestMessage()
     {
-        public const ushort Id = 6564;
-        public override ushort MessageId => Id;
-
-        public byte questType;
-        public byte index;
-
-        public TreasureHuntFlagRemoveRequestMessage()
+    }
+    public TreasureHuntFlagRemoveRequestMessage(byte questType, byte index)
+    {
+        this.questType = questType;
+        this.index = index;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        writer.WriteByte((byte)questType);
+        if (index < 0)
         {
+            throw new System.Exception("Forbidden value (" + index + ") on element index.");
         }
-        public TreasureHuntFlagRemoveRequestMessage(byte questType, byte index)
+
+        writer.WriteByte((byte)index);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        questType = (byte)reader.ReadByte();
+        if (questType < 0)
         {
-            this.questType = questType;
-            this.index = index;
+            throw new System.Exception("Forbidden value (" + questType + ") on element of TreasureHuntFlagRemoveRequestMessage.questType.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        index = (byte)reader.ReadByte();
+        if (index < 0)
         {
-            writer.WriteByte((byte)questType);
-            if (index < 0)
-            {
-                throw new System.Exception("Forbidden value (" + index + ") on element index.");
-            }
-
-            writer.WriteByte((byte)index);
-        }
-        public override void Deserialize(IDataReader reader)
-        {
-            questType = (byte)reader.ReadByte();
-            if (questType < 0)
-            {
-                throw new System.Exception("Forbidden value (" + questType + ") on element of TreasureHuntFlagRemoveRequestMessage.questType.");
-            }
-
-            index = (byte)reader.ReadByte();
-            if (index < 0)
-            {
-                throw new System.Exception("Forbidden value (" + index + ") on element of TreasureHuntFlagRemoveRequestMessage.index.");
-            }
-
+            throw new System.Exception("Forbidden value (" + index + ") on element of TreasureHuntFlagRemoveRequestMessage.index.");
         }
 
     }
+
 }
-
-

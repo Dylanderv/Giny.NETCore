@@ -1,49 +1,41 @@
 ﻿using Giny.Protocol.Custom.Enums;
 using Giny.Protocol.Enums;
-using Giny.Protocol.Types;
-using Giny.World.Managers.Effects;
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Buffs
+namespace Giny.World.Managers.Fights.Buffs;
+
+public class ShieldBuff : Buff
 {
-    public class ShieldBuff : Buff
+    private const ActionsEnum ActionId = ActionsEnum.ACTION_CHARACTER_BOOST_SHIELD;
+
+    public short Delta
     {
-        private const ActionsEnum ActionId = ActionsEnum.ACTION_CHARACTER_BOOST_SHIELD;
+        get;
+        set;
+    }
+    public ShieldBuff(int id, short delta, Fighter target, SpellEffectHandler effectHandler, FightDispellableEnum dispellable) :
+        base(id, target, effectHandler, dispellable, (short)ActionId)
+    {
+        this.Delta = delta;
+    }
 
-        public short Delta
-        {
-            get;
-            set;
-        }
-        public ShieldBuff(int id, short delta, Fighter target, SpellEffectHandler effectHandler, FightDispellableEnum dispellable) :
-            base(id, target, effectHandler, dispellable, (short)ActionId)
-        {
-            this.Delta = delta;
-        }
+    public override void Execute()
+    {
+        Target.AddShield(GetSource(),Delta);
+    }
 
-        public override void Execute()
-        {
-            Target.AddShield(GetSource(),Delta);
-        }
+    public override void Dispell()
+    {
+        Target.RemoveShield(GetSource(),Delta);
+    }
 
-        public override void Dispell()
-        {
-            Target.RemoveShield(GetSource(),Delta);
-        }
-
-        public override string ToString()
-        {
-            return "Shield " + Delta;
-        }
-        public override short GetDelta()
-        {
-            return Delta;
-        }
+    public override string ToString()
+    {
+        return "Shield " + Delta;
+    }
+    public override short GetDelta()
+    {
+        return Delta;
     }
 }

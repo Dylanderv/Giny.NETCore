@@ -2,145 +2,138 @@
 using Giny.World.Managers.Entities.Characters;
 using Giny.World.Managers.Exchanges.Trades;
 using Giny.World.Records.Items;
-using Org.BouncyCastle.Asn1.X509;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Items.Collections
+namespace Giny.World.Managers.Items.Collections;
+
+public class NpcTradeItemCollection : TradeItemCollection
 {
-    public class NpcTradeItemCollection : TradeItemCollection
+    private Character Character
     {
-        private Character Character
-        {
-            get;
-            set;
-        }
-        private TradeRule Rule
-        {
-            get;
-            set;
-        }
-        public NpcTradeItemCollection(Character character, TradeRule tradeRule)
-        {
-            this.Character = character;
-            this.Rule = tradeRule;
-        }
+        get;
+        set;
+    }
+    private TradeRule Rule
+    {
+        get;
+        set;
+    }
+    public NpcTradeItemCollection(Character character, TradeRule tradeRule)
+    {
+        this.Character = character;
+        this.Rule = tradeRule;
+    }
 
-        public override void OnItemUnstacked(CharacterItemRecord item, int quantity)
-        {
-            DecrementalRule(item, quantity);
+    public override void OnItemUnstacked(CharacterItemRecord item, int quantity)
+    {
+        DecrementalRule(item, quantity);
 
-            OnObjectModified(item);
+        OnObjectModified(item);
+    }
+    public override void OnItemStacked(CharacterItemRecord item, int quantity)
+    {
+        IncrementalRule(item, quantity);
+
+        OnObjectModified(item);
+    }
+
+    private void DecrementalRule(CharacterItemRecord item, int quantity)
+    {
+        if (Rule.Items.ContainsKey(item.Record))
+        {
+            var tradeItemRecord = Rule.Items[item.Record];
+            var qtyDiff = (int)(Rule.Rate * quantity);
+
+            var tradeItem = GetFirstItem((short)tradeItemRecord.Id, qtyDiff);
+            RemoveItem(tradeItem.UId, qtyDiff);
         }
-        public override void OnItemStacked(CharacterItemRecord item, int quantity)
+    }
+    private void IncrementalRule(CharacterItemRecord item, int quantity)
+    {
+        if (Rule.Items.ContainsKey(item.Record))
         {
-            IncrementalRule(item, quantity);
+            var tradeItemRecord = Rule.Items[item.Record];
+            var qty = (int)(quantity * Rule.Rate);
 
-            OnObjectModified(item);
+            var tradeItem = ItemsManager.Instance.CreateCharacterItem(tradeItemRecord, -1, qty);
+            AddItem(tradeItem);
         }
-
-        private void DecrementalRule(CharacterItemRecord item, int quantity)
+    }
+    public override void OnItemRemoved(CharacterItemRecord item)
+    {
+        if (item.CharacterId != -1)
         {
-            if (Rule.Items.ContainsKey(item.Record))
+            Character.Client.Send(new ExchangeObjectRemovedMessage()
             {
-                var tradeItemRecord = Rule.Items[item.Record];
-                var qtyDiff = (int)(Rule.Rate * quantity);
+                remote = false,
+                objectUID = item.UId
+            });
 
-                var tradeItem = GetFirstItem((short)tradeItemRecord.Id, qtyDiff);
-                RemoveItem(tradeItem.UId, qtyDiff);
-            }
+            DecrementalRule(item, item.Quantity);
+
         }
-        private void IncrementalRule(CharacterItemRecord item, int quantity)
+        else
         {
-            if (Rule.Items.ContainsKey(item.Record))
+            Character.Client.Send(new ExchangeObjectRemovedMessage()
             {
-                var tradeItemRecord = Rule.Items[item.Record];
-                var qty = (int)(quantity * Rule.Rate);
-
-                var tradeItem = ItemsManager.Instance.CreateCharacterItem(tradeItemRecord, -1, qty);
-                AddItem(tradeItem);
-            }
+                remote = true,
+                objectUID = item.UId
+            });
         }
-        public override void OnItemRemoved(CharacterItemRecord item)
+
+    }
+    public override void OnItemAdded(CharacterItemRecord item)
+    {
+        if (item.CharacterId != -1)
         {
-            if (item.CharacterId != -1)
+            Character.Client.Send(new ExchangeObjectAddedMessage()
             {
-                Character.Client.Send(new ExchangeObjectRemovedMessage()
-                {
-                    remote = false,
-                    objectUID = item.UId
-                });
+                remote = false,
+                @object = item.GetObjectItem()
+            });
 
-                DecrementalRule(item, item.Quantity);
 
-            }
-            else
-            {
-                Character.Client.Send(new ExchangeObjectRemovedMessage()
-                {
-                    remote = true,
-                    objectUID = item.UId
-                });
-            }
-
+            IncrementalRule(item, item.Quantity);
         }
-        public override void OnItemAdded(CharacterItemRecord item)
+        else
         {
-            if (item.CharacterId != -1)
+            Character.Client.Send(new ExchangeObjectAddedMessage()
             {
-                Character.Client.Send(new ExchangeObjectAddedMessage()
-                {
-                    remote = false,
-                    @object = item.GetObjectItem()
-                });
-
-
-                IncrementalRule(item, item.Quantity);
-            }
-            else
-            {
-                Character.Client.Send(new ExchangeObjectAddedMessage()
-                {
-                    remote = true,
-                    @object = item.GetObjectItem()
-                });
-            }
+                remote = true,
+                @object = item.GetObjectItem()
+            });
         }
+    }
 
-        private void OnObjectModified(CharacterItemRecord obj)
+    private void OnObjectModified(CharacterItemRecord obj)
+    {
+        if (obj.CharacterId != -1)
         {
-            if (obj.CharacterId != -1)
+            Character.Client.Send(new ExchangeObjectModifiedMessage()
             {
-                Character.Client.Send(new ExchangeObjectModifiedMessage()
-                {
-                    remote = false,
-                    @object = obj.GetObjectItem(),
-                });
+                remote = false,
+                @object = obj.GetObjectItem(),
+            });
 
 
-            }
-            else
+        }
+        else
+        {
+            Character.Client.Send(new ExchangeObjectModifiedMessage()
             {
-                Character.Client.Send(new ExchangeObjectModifiedMessage()
-                {
-                    remote = true,
-                    @object = obj.GetObjectItem(),
-                });
-            }
-
+                remote = true,
+                @object = obj.GetObjectItem(),
+            });
         }
 
-        public List<CharacterItemRecord> GetCharacterItems()
-        {
-            return GetItems().Where(x => x.CharacterId != -1).ToList();
-        }
+    }
 
-        public List<CharacterItemRecord> GetTradeItems()
-        {
-            return GetItems().Where(x => x.CharacterId == -1).ToList();
-        }
+    public List<CharacterItemRecord> GetCharacterItems()
+    {
+        return GetItems().Where(x => x.CharacterId != -1).ToList();
+    }
+
+    public List<CharacterItemRecord> GetTradeItems()
+    {
+        return GetItems().Where(x => x.CharacterId == -1).ToList();
     }
 }

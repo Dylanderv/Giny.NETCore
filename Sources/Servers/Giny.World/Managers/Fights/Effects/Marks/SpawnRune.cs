@@ -4,43 +4,37 @@ using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Managers.Fights.Marks;
 using Giny.World.Managers.Fights.Zones;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Rune = Giny.World.Managers.Fights.Marks.Rune;
 
-namespace Giny.World.Managers.Fights.Effects.Marks
+namespace Giny.World.Managers.Fights.Effects.Marks;
+
+[SpellEffectHandler(EffectsEnum.Effect_Rune)]
+public class SpawnRune : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_Rune)]
-    public class SpawnRune : SpellEffectHandler
+    public SpawnRune(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public SpawnRune(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
-        {
 
+    }
+
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        var mark = Source.Fight.GetMarks<Rune>().Where(x => x.CenterCell == TargetCell).FirstOrDefault();
+
+        if (mark != null)
+        {
+            Source.Fight.RemoveMark(mark);
         }
 
-        protected override void Apply(IEnumerable<Fighter> targets)
-        {
-            var mark = Source.Fight.GetMarks<Rune>().Where(x => x.CenterCell == TargetCell).FirstOrDefault();
+        Zone zone = Effect.GetZone();
 
-            if (mark != null)
-            {
-                Source.Fight.RemoveMark(mark);
-            }
+        Color color = Color.FromArgb(Effect.Value);
 
-            Zone zone = Effect.GetZone();
+        Rune rune = new Rune(Source.Fight.PopNextMarkId(), Effect,
+            zone, MarkTriggerType.None, color,
+            Source, TargetCell, CastHandler.Cast.Spell,
+            Effect.GetSpell());
 
-            Color color = Color.FromArgb(Effect.Value);
-
-            Rune rune = new Rune(Source.Fight.PopNextMarkId(), Effect,
-                zone, MarkTriggerType.None, color,
-                Source, TargetCell, CastHandler.Cast.Spell,
-                Effect.GetSpell());
-
-            Source.Fight.AddMark(rune);
-        }
+        Source.Fight.AddMark(rune);
     }
 }

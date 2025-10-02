@@ -1,36 +1,34 @@
 using Giny.Core.IO;
-using System.ComponentModel;
 
-namespace Giny.IO.ELE.Repertory
+namespace Giny.IO.ELE.Repertory;
+
+public class BoundingBoxGraphicalElementData : NormalGraphicalElementData
 {
-    public class BoundingBoxGraphicalElementData : NormalGraphicalElementData
-    {
         
 
-        public override EleGraphicalElementTypes Type
+    public override EleGraphicalElementTypes Type
+    {
+        get
         {
-            get
-            {
-                return EleGraphicalElementTypes.BOUNDING_BOX;
-            }
+            return EleGraphicalElementTypes.BOUNDING_BOX;
         }
+    }
 
-        public BoundingBoxGraphicalElementData(Elements instance, int id)
-            : base(instance, id)
-        {
-        }
+    public BoundingBoxGraphicalElementData(Elements instance, int id)
+        : base(instance, id)
+    {
+    }
 
-        public new static BoundingBoxGraphicalElementData ReadFromStream(Elements instance, int id, BigEndianReader reader)
+    public new static BoundingBoxGraphicalElementData ReadFromStream(Elements instance, int id, BigEndianReader reader)
+    {
+        return new BoundingBoxGraphicalElementData(instance, id)
         {
-            return new BoundingBoxGraphicalElementData(instance, id)
-            {
-                Gfx = reader.ReadInt(),
-                Height = reader.ReadByte(),
-                HorizontalSymmetry = reader.ReadBoolean(),
-                OriginX = reader.ReadShort(),
-                OriginY =reader.ReadShort(),
-                Size = new System.Drawing.Size((int)reader.ReadShort(), (int)reader.ReadShort())
-            };
-        }
+            Gfx = reader.ReadInt(),
+            Height = reader.ReadByte(),
+            HorizontalSymmetry = reader.ReadBoolean(),
+            OriginX = reader.ReadShort(),
+            OriginY =reader.ReadShort(),
+            Size = new System.Drawing.Size((int)reader.ReadShort(), (int)reader.ReadShort())
+        };
     }
 }

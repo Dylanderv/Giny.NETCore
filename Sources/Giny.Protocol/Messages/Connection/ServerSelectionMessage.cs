@@ -1,46 +1,39 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class ServerSelectionMessage : NetworkMessage
 {
-    public class ServerSelectionMessage : NetworkMessage
+    public const ushort Id = 1712;
+    public override ushort MessageId => Id;
+
+    public short serverId;
+
+    public ServerSelectionMessage()
     {
-        public const ushort Id = 1712;
-        public override ushort MessageId => Id;
-
-        public short serverId;
-
-        public ServerSelectionMessage()
+    }
+    public ServerSelectionMessage(short serverId)
+    {
+        this.serverId = serverId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (serverId < 0)
         {
+            throw new System.Exception("Forbidden value (" + serverId + ") on element serverId.");
         }
-        public ServerSelectionMessage(short serverId)
-        {
-            this.serverId = serverId;
-        }
-        public override void Serialize(IDataWriter writer)
-        {
-            if (serverId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + serverId + ") on element serverId.");
-            }
 
-            writer.WriteVarShort((short)serverId);
-        }
-        public override void Deserialize(IDataReader reader)
+        writer.WriteVarShort((short)serverId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        serverId = (short)reader.ReadVarUhShort();
+        if (serverId < 0)
         {
-            serverId = (short)reader.ReadVarUhShort();
-            if (serverId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + serverId + ") on element of ServerSelectionMessage.serverId.");
-            }
-
+            throw new System.Exception("Forbidden value (" + serverId + ") on element of ServerSelectionMessage.serverId.");
         }
 
     }
+
 }
-
-

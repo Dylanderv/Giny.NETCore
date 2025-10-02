@@ -1,94 +1,86 @@
-using System.Collections.Generic;
-using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class PartyInvitationMessage : AbstractPartyMessage
 {
-    public class PartyInvitationMessage : AbstractPartyMessage
+    public new const ushort Id = 5425;
+    public override ushort MessageId => Id;
+
+    public byte partyType;
+    public string partyName;
+    public byte maxParticipants;
+    public long fromId;
+    public string fromName;
+    public long toId;
+
+    public PartyInvitationMessage()
     {
-        public new const ushort Id = 5425;
-        public override ushort MessageId => Id;
-
-        public byte partyType;
-        public string partyName;
-        public byte maxParticipants;
-        public long fromId;
-        public string fromName;
-        public long toId;
-
-        public PartyInvitationMessage()
+    }
+    public PartyInvitationMessage(byte partyType, string partyName, byte maxParticipants, long fromId, string fromName, long toId, int partyId)
+    {
+        this.partyType = partyType;
+        this.partyName = partyName;
+        this.maxParticipants = maxParticipants;
+        this.fromId = fromId;
+        this.fromName = fromName;
+        this.toId = toId;
+        this.partyId = partyId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        base.Serialize(writer);
+        writer.WriteByte((byte)partyType);
+        writer.WriteUTF((string)partyName);
+        if (maxParticipants < 0)
         {
+            throw new System.Exception("Forbidden value (" + maxParticipants + ") on element maxParticipants.");
         }
-        public PartyInvitationMessage(byte partyType, string partyName, byte maxParticipants, long fromId, string fromName, long toId, int partyId)
+
+        writer.WriteByte((byte)maxParticipants);
+        if (fromId < 0 || fromId > 9007199254740992)
         {
-            this.partyType = partyType;
-            this.partyName = partyName;
-            this.maxParticipants = maxParticipants;
-            this.fromId = fromId;
-            this.fromName = fromName;
-            this.toId = toId;
-            this.partyId = partyId;
+            throw new System.Exception("Forbidden value (" + fromId + ") on element fromId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarLong((long)fromId);
+        writer.WriteUTF((string)fromName);
+        if (toId < 0 || toId > 9007199254740992)
         {
-            base.Serialize(writer);
-            writer.WriteByte((byte)partyType);
-            writer.WriteUTF((string)partyName);
-            if (maxParticipants < 0)
-            {
-                throw new System.Exception("Forbidden value (" + maxParticipants + ") on element maxParticipants.");
-            }
-
-            writer.WriteByte((byte)maxParticipants);
-            if (fromId < 0 || fromId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + fromId + ") on element fromId.");
-            }
-
-            writer.WriteVarLong((long)fromId);
-            writer.WriteUTF((string)fromName);
-            if (toId < 0 || toId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + toId + ") on element toId.");
-            }
-
-            writer.WriteVarLong((long)toId);
+            throw new System.Exception("Forbidden value (" + toId + ") on element toId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        writer.WriteVarLong((long)toId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        base.Deserialize(reader);
+        partyType = (byte)reader.ReadByte();
+        if (partyType < 0)
         {
-            base.Deserialize(reader);
-            partyType = (byte)reader.ReadByte();
-            if (partyType < 0)
-            {
-                throw new System.Exception("Forbidden value (" + partyType + ") on element of PartyInvitationMessage.partyType.");
-            }
+            throw new System.Exception("Forbidden value (" + partyType + ") on element of PartyInvitationMessage.partyType.");
+        }
 
-            partyName = (string)reader.ReadUTF();
-            maxParticipants = (byte)reader.ReadByte();
-            if (maxParticipants < 0)
-            {
-                throw new System.Exception("Forbidden value (" + maxParticipants + ") on element of PartyInvitationMessage.maxParticipants.");
-            }
+        partyName = (string)reader.ReadUTF();
+        maxParticipants = (byte)reader.ReadByte();
+        if (maxParticipants < 0)
+        {
+            throw new System.Exception("Forbidden value (" + maxParticipants + ") on element of PartyInvitationMessage.maxParticipants.");
+        }
 
-            fromId = (long)reader.ReadVarUhLong();
-            if (fromId < 0 || fromId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + fromId + ") on element of PartyInvitationMessage.fromId.");
-            }
+        fromId = (long)reader.ReadVarUhLong();
+        if (fromId < 0 || fromId > 9007199254740992)
+        {
+            throw new System.Exception("Forbidden value (" + fromId + ") on element of PartyInvitationMessage.fromId.");
+        }
 
-            fromName = (string)reader.ReadUTF();
-            toId = (long)reader.ReadVarUhLong();
-            if (toId < 0 || toId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + toId + ") on element of PartyInvitationMessage.toId.");
-            }
-
+        fromName = (string)reader.ReadUTF();
+        toId = (long)reader.ReadVarUhLong();
+        if (toId < 0 || toId > 9007199254740992)
+        {
+            throw new System.Exception("Forbidden value (" + toId + ") on element of PartyInvitationMessage.toId.");
         }
 
     }
+
 }
-
-

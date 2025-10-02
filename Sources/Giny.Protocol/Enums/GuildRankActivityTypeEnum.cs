@@ -1,13 +1,9 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum GuildRankActivityTypeEnum
 {
-    public enum GuildRankActivityTypeEnum
-    {
-        CREATION = 0,
-        UPDATE = 1,
-        DELETE = 2,
+    CREATION = 0,
+    UPDATE = 1,
+    DELETE = 2,
 
-    }
 }
-

@@ -1,44 +1,38 @@
 ﻿
 using Giny.Core.IO.Interfaces;
 using Giny.Core.Network.IPC;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.Protocol.IPC.Messages
+namespace Giny.Protocol.IPC.Messages;
+
+public class DisconnectClientResultMessage : IPCMessage
 {
-    public class DisconnectClientResultMessage : IPCMessage
+    public const ushort Id = 5;
+
+    public override ushort MessageId
     {
-        public const ushort Id = 5;
-
-        public override ushort MessageId
+        get
         {
-            get
-            {
-                return Id;
-            }
+            return Id;
         }
+    }
 
-        public bool sucess;
+    public bool sucess;
 
-        public DisconnectClientResultMessage()
-        {
+    public DisconnectClientResultMessage()
+    {
 
-        }
-        public DisconnectClientResultMessage(bool sucess)
-        {
-            this.sucess = sucess;
-        }
-        public override void Serialize(IDataWriter writer)
-        {
-            writer.WriteBoolean(sucess);
-        }
+    }
+    public DisconnectClientResultMessage(bool sucess)
+    {
+        this.sucess = sucess;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        writer.WriteBoolean(sucess);
+    }
 
-        public override void Deserialize(IDataReader reader)
-        {
-            this.sucess = reader.ReadBoolean();
-        }
+    public override void Deserialize(IDataReader reader)
+    {
+        this.sucess = reader.ReadBoolean();
     }
 }

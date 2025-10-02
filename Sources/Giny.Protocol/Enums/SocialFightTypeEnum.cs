@@ -1,12 +1,8 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum SocialFightTypeEnum
 {
-    public enum SocialFightTypeEnum
-    {
-        TaxCollectorFight = 0,
-        PrismFight = 1,
+    TaxCollectorFight = 0,
+    PrismFight = 1,
 
-    }
 }
-

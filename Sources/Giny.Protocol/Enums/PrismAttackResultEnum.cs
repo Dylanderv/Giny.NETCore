@@ -1,12 +1,8 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum PrismAttackResultEnum
 {
-    public enum PrismAttackResultEnum
-    {
-        DEFENDERS_WIN = 0,
-        ATTACKERS_WIN = 1,
+    DEFENDERS_WIN = 0,
+    ATTACKERS_WIN = 1,
 
-    }
 }
-

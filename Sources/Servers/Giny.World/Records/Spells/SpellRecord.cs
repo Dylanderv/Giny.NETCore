@@ -2,147 +2,139 @@
 using Giny.IO.D2O;
 using Giny.ORM.Attributes;
 using Giny.ORM.Interfaces;
-using Giny.World.Managers.Effects;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Records.Spells
+namespace Giny.World.Records.Spells;
+
+[D2OClass("Spell")]
+[Table("spells")]
+public class SpellRecord : IRecord
 {
-    [D2OClass("Spell")]
-    [Table("spells")]
-    public class SpellRecord : IRecord
+    [Container]
+    private static Dictionary<long, SpellRecord> Spells = new Dictionary<long, SpellRecord>();
+
+    long IRecord.Id => Id;
+
+    [D2OField("id")]
+    [Primary]
+    public short Id
     {
-        [Container]
-        private static Dictionary<long, SpellRecord> Spells = new Dictionary<long, SpellRecord>();
+        get;
+        set;
+    }
+    [I18NField]
+    [D2OField("nameId")]
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        long IRecord.Id => Id;
+    [TypeOverride("mediumtext")]
+    [I18NField]
+    [D2OField("descriptionId")]
+    public string Description
+    {
+        get;
+        set;
+    }
+    [D2OField("spellLevels")]
+    [Blob]
+    public int[] SpellLevels
+    {
+        get;
+        set;
+    }
+    [D2OField("verboseCast")]
+    public bool Verbose
+    {
+        get;
+        set;
+    }
 
-        [D2OField("id")]
-        [Primary]
-        public short Id
+    [Ignore]
+    public SpellRecord VariantRecord
+    {
+        get;
+        set;
+    }
+    [Ignore]
+    public List<SpellLevelRecord> Levels
+    {
+        get;
+        set;
+    }
+    [Ignore]
+    public int MinimumLevel
+    {
+        get
         {
-            get;
-            set;
+            return Levels.Min(x => x.MinPlayerLevel);
         }
-        [I18NField]
-        [D2OField("nameId")]
-        public string Name
-        {
-            get;
-            set;
-        }
+    }
 
-        [TypeOverride("mediumtext")]
-        [I18NField]
-        [D2OField("descriptionId")]
-        public string Description
-        {
-            get;
-            set;
-        }
-        [D2OField("spellLevels")]
-        [Blob]
-        public int[] SpellLevels
-        {
-            get;
-            set;
-        }
-        [D2OField("verboseCast")]
-        public bool Verbose
-        {
-            get;
-            set;
-        }
+    [Update]
+    public SpellCategoryEnum Category
+    {
+        get;
+        set;
+    } = SpellCategoryEnum.None;
 
-        [Ignore]
-        public SpellRecord VariantRecord
+    [StartupInvoke("Spells bindings", StartupInvokePriority.SixthPath)]
+    public static void Initialize()
+    {
+        foreach (var spell in Spells.Values)
         {
-            get;
-            set;
-        }
-        [Ignore]
-        public List<SpellLevelRecord> Levels
-        {
-            get;
-            set;
-        }
-        [Ignore]
-        public int MinimumLevel
-        {
-            get
+            var variantSpellId = SpellVariantRecord.GetVariant(spell.Id);
+            if (variantSpellId != -1)
+                spell.VariantRecord = GetSpellRecord(variantSpellId);
+
+            spell.Levels = new List<SpellLevelRecord>();
+
+            foreach (var levelId in spell.SpellLevels)
             {
-                return Levels.Min(x => x.MinPlayerLevel);
+                SpellLevelRecord level = SpellLevelRecord.GetSpellLevel(levelId);
+                spell.Levels.Add(level);
             }
         }
-
-        [Update]
-        public SpellCategoryEnum Category
+    }
+    public override string ToString()
+    {
+        return string.Format("({0}) {1}", Id, Name);
+    }
+    public SpellLevelRecord GetLevel(byte grade)
+    {
+        if (grade == 0)
         {
-            get;
-            set;
-        } = SpellCategoryEnum.None;
-
-        [StartupInvoke("Spells bindings", StartupInvokePriority.SixthPath)]
-        public static void Initialize()
-        {
-            foreach (var spell in Spells.Values)
-            {
-                var variantSpellId = SpellVariantRecord.GetVariant(spell.Id);
-                if (variantSpellId != -1)
-                    spell.VariantRecord = GetSpellRecord(variantSpellId);
-
-                spell.Levels = new List<SpellLevelRecord>();
-
-                foreach (var levelId in spell.SpellLevels)
-                {
-                    SpellLevelRecord level = SpellLevelRecord.GetSpellLevel(levelId);
-                    spell.Levels.Add(level);
-                }
-            }
+            return Levels.Last();
         }
-        public override string ToString()
+        if (grade <= Levels.Count)
         {
-            return string.Format("({0}) {1}", Id, Name);
+            return Levels[grade - 1];
         }
-        public SpellLevelRecord GetLevel(byte grade)
+        else
         {
-            if (grade == 0)
-            {
-                return Levels.Last();
-            }
-            if (grade <= Levels.Count)
-            {
-                return Levels[grade - 1];
-            }
-            else
-            {
-                return Levels.Last();
-            }
+            return Levels.Last();
         }
+    }
 
    
 
-        public static IEnumerable<SpellRecord> GetSpellRecords()
-        {
-            return Spells.Values;
-        }
-        public static SpellRecord GetSpellRecord(short spellId)
-        {
-            SpellRecord result = null;
-            Spells.TryGetValue(spellId, out result);
-            return result;
-        }
-        public static SpellRecord GetSpellRecord(string name)
-        {
-            return Spells.Values.FirstOrDefault(x => x.Name == name);
-        }
-        public static bool Exists(short spellId)
-        {
-            return Spells.ContainsKey(spellId);
-        }
+    public static IEnumerable<SpellRecord> GetSpellRecords()
+    {
+        return Spells.Values;
+    }
+    public static SpellRecord GetSpellRecord(short spellId)
+    {
+        SpellRecord result = null;
+        Spells.TryGetValue(spellId, out result);
+        return result;
+    }
+    public static SpellRecord GetSpellRecord(string name)
+    {
+        return Spells.Values.FirstOrDefault(x => x.Name == name);
+    }
+    public static bool Exists(short spellId)
+    {
+        return Spells.ContainsKey(spellId);
     }
 }

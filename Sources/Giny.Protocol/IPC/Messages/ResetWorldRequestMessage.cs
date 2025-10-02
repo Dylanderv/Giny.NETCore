@@ -1,39 +1,33 @@
 ﻿using Giny.Core.IO.Interfaces;
 using Giny.Core.Network.IPC;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.Protocol.IPC.Messages
+namespace Giny.Protocol.IPC.Messages;
+
+public class ResetWorldRequestMessage : IPCMessage
 {
-    public class ResetWorldRequestMessage : IPCMessage
+    public const ushort Id = 16;
+
+    public override ushort MessageId
     {
-        public const ushort Id = 16;
-
-        public override ushort MessageId
+        get
         {
-            get
-            {
-                return Id;
-            }
+            return Id;
         }
+    }
 
-        public ResetWorldRequestMessage()
-        {
+    public ResetWorldRequestMessage()
+    {
 
-        }
+    }
 
 
-        public override void Serialize(IDataWriter writer)
-        {
+    public override void Serialize(IDataWriter writer)
+    {
           
-        }
+    }
 
-        public override void Deserialize(IDataReader reader)
-        {
+    public override void Deserialize(IDataReader reader)
+    {
            
-        }
     }
 }

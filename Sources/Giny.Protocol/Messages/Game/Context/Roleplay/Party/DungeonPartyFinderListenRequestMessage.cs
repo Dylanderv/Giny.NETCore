@@ -1,46 +1,39 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class DungeonPartyFinderListenRequestMessage : NetworkMessage
 {
-    public class DungeonPartyFinderListenRequestMessage : NetworkMessage
+    public const ushort Id = 9733;
+    public override ushort MessageId => Id;
+
+    public short dungeonId;
+
+    public DungeonPartyFinderListenRequestMessage()
     {
-        public const ushort Id = 9733;
-        public override ushort MessageId => Id;
-
-        public short dungeonId;
-
-        public DungeonPartyFinderListenRequestMessage()
+    }
+    public DungeonPartyFinderListenRequestMessage(short dungeonId)
+    {
+        this.dungeonId = dungeonId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (dungeonId < 0)
         {
+            throw new System.Exception("Forbidden value (" + dungeonId + ") on element dungeonId.");
         }
-        public DungeonPartyFinderListenRequestMessage(short dungeonId)
-        {
-            this.dungeonId = dungeonId;
-        }
-        public override void Serialize(IDataWriter writer)
-        {
-            if (dungeonId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + dungeonId + ") on element dungeonId.");
-            }
 
-            writer.WriteVarShort((short)dungeonId);
-        }
-        public override void Deserialize(IDataReader reader)
+        writer.WriteVarShort((short)dungeonId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        dungeonId = (short)reader.ReadVarUhShort();
+        if (dungeonId < 0)
         {
-            dungeonId = (short)reader.ReadVarUhShort();
-            if (dungeonId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + dungeonId + ") on element of DungeonPartyFinderListenRequestMessage.dungeonId.");
-            }
-
+            throw new System.Exception("Forbidden value (" + dungeonId + ") on element of DungeonPartyFinderListenRequestMessage.dungeonId.");
         }
 
     }
+
 }
-
-

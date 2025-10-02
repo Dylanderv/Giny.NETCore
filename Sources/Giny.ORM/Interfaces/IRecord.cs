@@ -1,10 +1,9 @@
-﻿namespace Giny.ORM.Interfaces
+﻿namespace Giny.ORM.Interfaces;
+
+public interface IRecord
 {
-    public interface IRecord
+    long Id
     {
-        long Id
-        {
-            get;
-        }
+        get;
     }
 }

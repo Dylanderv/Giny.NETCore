@@ -1,12 +1,8 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum ChallengeModEnum
 {
-    public enum ChallengeModEnum
-    {
-        CHALLENGE_CHOICE = 0,
-        CHALLENGE_RANDOM = 1,
+    CHALLENGE_CHOICE = 0,
+    CHALLENGE_RANDOM = 1,
 
-    }
 }
-

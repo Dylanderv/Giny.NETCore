@@ -1,60 +1,53 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class GameFightJoinRequestMessage : NetworkMessage
 {
-    public class GameFightJoinRequestMessage : NetworkMessage
+    public const ushort Id = 2009;
+    public override ushort MessageId => Id;
+
+    public double fighterId;
+    public short fightId;
+
+    public GameFightJoinRequestMessage()
     {
-        public const ushort Id = 2009;
-        public override ushort MessageId => Id;
-
-        public double fighterId;
-        public short fightId;
-
-        public GameFightJoinRequestMessage()
+    }
+    public GameFightJoinRequestMessage(double fighterId, short fightId)
+    {
+        this.fighterId = fighterId;
+        this.fightId = fightId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (fighterId < -9007199254740992 || fighterId > 9007199254740992)
         {
+            throw new System.Exception("Forbidden value (" + fighterId + ") on element fighterId.");
         }
-        public GameFightJoinRequestMessage(double fighterId, short fightId)
+
+        writer.WriteDouble((double)fighterId);
+        if (fightId < 0)
         {
-            this.fighterId = fighterId;
-            this.fightId = fightId;
+            throw new System.Exception("Forbidden value (" + fightId + ") on element fightId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarShort((short)fightId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        fighterId = (double)reader.ReadDouble();
+        if (fighterId < -9007199254740992 || fighterId > 9007199254740992)
         {
-            if (fighterId < -9007199254740992 || fighterId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + fighterId + ") on element fighterId.");
-            }
-
-            writer.WriteDouble((double)fighterId);
-            if (fightId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + fightId + ") on element fightId.");
-            }
-
-            writer.WriteVarShort((short)fightId);
+            throw new System.Exception("Forbidden value (" + fighterId + ") on element of GameFightJoinRequestMessage.fighterId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        fightId = (short)reader.ReadVarUhShort();
+        if (fightId < 0)
         {
-            fighterId = (double)reader.ReadDouble();
-            if (fighterId < -9007199254740992 || fighterId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + fighterId + ") on element of GameFightJoinRequestMessage.fighterId.");
-            }
-
-            fightId = (short)reader.ReadVarUhShort();
-            if (fightId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + fightId + ") on element of GameFightJoinRequestMessage.fightId.");
-            }
-
+            throw new System.Exception("Forbidden value (" + fightId + ") on element of GameFightJoinRequestMessage.fightId.");
         }
 
     }
+
 }
-
-

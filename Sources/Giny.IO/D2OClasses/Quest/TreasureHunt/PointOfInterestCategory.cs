@@ -1,46 +1,41 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("PointOfInterestCategory", "")]
+public class PointOfInterestCategory : IDataObject, IIndexedData
 {
-    [D2OClass("PointOfInterestCategory", "")]
-    public class PointOfInterestCategory : IDataObject, IIndexedData
+    public const string MODULE = "PointOfInterestCategory";
+
+    public int Id => (int)id;
+
+    public uint id;
+    public uint actionLabelId;
+
+    [D2OIgnore]
+    public uint Id_
     {
-        public const string MODULE = "PointOfInterestCategory";
-
-        public int Id => (int)id;
-
-        public uint id;
-        public uint actionLabelId;
-
-        [D2OIgnore]
-        public uint Id_
+        get
         {
-            get
-            {
-                return id;
-            }
-            set
-            {
-                id = value;
-            }
+            return id;
         }
-        [D2OIgnore]
-        public uint ActionLabelId
+        set
         {
-            get
-            {
-                return actionLabelId;
-            }
-            set
-            {
-                actionLabelId = value;
-            }
+            id = value;
         }
-
     }
-}
+    [D2OIgnore]
+    public uint ActionLabelId
+    {
+        get
+        {
+            return actionLabelId;
+        }
+        set
+        {
+            actionLabelId = value;
+        }
+    }
 
+}

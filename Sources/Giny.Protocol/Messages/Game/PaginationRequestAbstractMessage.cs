@@ -1,60 +1,53 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class PaginationRequestAbstractMessage : NetworkMessage
 {
-    public class PaginationRequestAbstractMessage : NetworkMessage
+    public const ushort Id = 5210;
+    public override ushort MessageId => Id;
+
+    public double offset;
+    public uint count;
+
+    public PaginationRequestAbstractMessage()
     {
-        public const ushort Id = 5210;
-        public override ushort MessageId => Id;
-
-        public double offset;
-        public uint count;
-
-        public PaginationRequestAbstractMessage()
+    }
+    public PaginationRequestAbstractMessage(double offset, uint count)
+    {
+        this.offset = offset;
+        this.count = count;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (offset < 0 || offset > 9007199254740992)
         {
+            throw new System.Exception("Forbidden value (" + offset + ") on element offset.");
         }
-        public PaginationRequestAbstractMessage(double offset, uint count)
+
+        writer.WriteDouble((double)offset);
+        if (count < 0 || count > 4294967295)
         {
-            this.offset = offset;
-            this.count = count;
+            throw new System.Exception("Forbidden value (" + count + ") on element count.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteUInt((uint)count);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        offset = (double)reader.ReadDouble();
+        if (offset < 0 || offset > 9007199254740992)
         {
-            if (offset < 0 || offset > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + offset + ") on element offset.");
-            }
-
-            writer.WriteDouble((double)offset);
-            if (count < 0 || count > 4294967295)
-            {
-                throw new System.Exception("Forbidden value (" + count + ") on element count.");
-            }
-
-            writer.WriteUInt((uint)count);
+            throw new System.Exception("Forbidden value (" + offset + ") on element of PaginationRequestAbstractMessage.offset.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        count = (uint)reader.ReadUInt();
+        if (count < 0 || count > 4294967295)
         {
-            offset = (double)reader.ReadDouble();
-            if (offset < 0 || offset > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + offset + ") on element of PaginationRequestAbstractMessage.offset.");
-            }
-
-            count = (uint)reader.ReadUInt();
-            if (count < 0 || count > 4294967295)
-            {
-                throw new System.Exception("Forbidden value (" + count + ") on element of PaginationRequestAbstractMessage.count.");
-            }
-
+            throw new System.Exception("Forbidden value (" + count + ") on element of PaginationRequestAbstractMessage.count.");
         }
 
     }
+
 }
-
-

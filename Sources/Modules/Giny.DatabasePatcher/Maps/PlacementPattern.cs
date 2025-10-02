@@ -1,99 +1,93 @@
 ﻿using Giny.World.Managers.Maps;
 using Giny.World.Records.Maps;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Giny.DatabasePatcher.Maps
+namespace Giny.DatabasePatcher.Maps;
+
+public class PlacementPattern
 {
-    public class PlacementPattern
+    public bool Relativ
     {
-        public bool Relativ
-        {
-            get;
-            set;
-        }
+        get;
+        set;
+    }
 
-        public Point[] Blues
-        {
-            get;
-            set;
-        }
+    public Point[] Blues
+    {
+        get;
+        set;
+    }
 
-        public Point[] Reds
-        {
-            get;
-            set;
-        }
+    public Point[] Reds
+    {
+        get;
+        set;
+    }
 
-        public Point Center
-        {
-            get;
-            set;
-        }
+    public Point Center
+    {
+        get;
+        set;
+    }
 
-        [XmlIgnore]
-        public int Complexity
-        {
-            get;
-            set;
-        }
+    [XmlIgnore]
+    public int Complexity
+    {
+        get;
+        set;
+    }
 
-        public bool TestPattern(MapRecord map)
+    public bool TestPattern(MapRecord map)
+    {
+        bool result;
+        try
         {
-            bool result;
-            try
+            bool bluesOk;
+            bool redsOk;
+            if (this.Relativ)
             {
-                bool bluesOk;
-                bool redsOk;
-                if (this.Relativ)
-                {
-                    bluesOk = this.Blues.All((Point entry) => map.IsValidFightCell(entry.X + this.Center.X, entry.Y + this.Center.Y));
-                    redsOk = this.Reds.All((Point entry) => map.IsValidFightCell(entry.X + this.Center.X, entry.Y + this.Center.Y));
-                }
-                else
-                {
-                    bluesOk = this.Blues.All((Point entry) => map.IsValidFightCell(entry.X, entry.Y));
-                    redsOk = this.Reds.All((Point entry) => map.IsValidFightCell(entry.X, entry.Y));
-                }
-                result = (bluesOk && redsOk);
+                bluesOk = this.Blues.All((Point entry) => map.IsValidFightCell(entry.X + this.Center.X, entry.Y + this.Center.Y));
+                redsOk = this.Reds.All((Point entry) => map.IsValidFightCell(entry.X + this.Center.X, entry.Y + this.Center.Y));
             }
-            catch (Exception)
+            else
             {
-                result = false;
+                bluesOk = this.Blues.All((Point entry) => map.IsValidFightCell(entry.X, entry.Y));
+                redsOk = this.Reds.All((Point entry) => map.IsValidFightCell(entry.X, entry.Y));
             }
-            return result;
+            result = (bluesOk && redsOk);
         }
-
-        public bool TestPattern(MapPoint center, MapRecord map)
+        catch (Exception)
         {
-            bool result;
-            try
-            {
-                bool bluesOk;
-                bool redsOk;
-
-                if (this.Relativ)
-                {
-                    bluesOk = this.Blues.All((Point entry) => map.IsValidFightCell(entry.X + center.X, entry.Y + center.Y));
-                    redsOk = this.Reds.All((Point entry) => map.IsValidFightCell(entry.X + center.X, entry.Y + center.Y));
-                }
-                else
-                {
-                    bluesOk = this.Blues.All((Point entry) => map.IsValidFightCell(entry.X, entry.Y));
-                    redsOk = this.Reds.All((Point entry) => map.IsValidFightCell(entry.X, entry.Y));
-                }
-                result = (bluesOk && redsOk);
-            }
-            catch (Exception)
-            {
-                result = false;
-            }
-            return result;
+            result = false;
         }
+        return result;
+    }
+
+    public bool TestPattern(MapPoint center, MapRecord map)
+    {
+        bool result;
+        try
+        {
+            bool bluesOk;
+            bool redsOk;
+
+            if (this.Relativ)
+            {
+                bluesOk = this.Blues.All((Point entry) => map.IsValidFightCell(entry.X + center.X, entry.Y + center.Y));
+                redsOk = this.Reds.All((Point entry) => map.IsValidFightCell(entry.X + center.X, entry.Y + center.Y));
+            }
+            else
+            {
+                bluesOk = this.Blues.All((Point entry) => map.IsValidFightCell(entry.X, entry.Y));
+                redsOk = this.Reds.All((Point entry) => map.IsValidFightCell(entry.X, entry.Y));
+            }
+            result = (bluesOk && redsOk);
+        }
+        catch (Exception)
+        {
+            result = false;
+        }
+        return result;
     }
 }

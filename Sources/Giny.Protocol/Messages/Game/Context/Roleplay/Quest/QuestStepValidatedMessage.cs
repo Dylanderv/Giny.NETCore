@@ -1,60 +1,53 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class QuestStepValidatedMessage : NetworkMessage
 {
-    public class QuestStepValidatedMessage : NetworkMessage
+    public const ushort Id = 9356;
+    public override ushort MessageId => Id;
+
+    public short questId;
+    public short stepId;
+
+    public QuestStepValidatedMessage()
     {
-        public const ushort Id = 9356;
-        public override ushort MessageId => Id;
-
-        public short questId;
-        public short stepId;
-
-        public QuestStepValidatedMessage()
+    }
+    public QuestStepValidatedMessage(short questId, short stepId)
+    {
+        this.questId = questId;
+        this.stepId = stepId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (questId < 0)
         {
+            throw new System.Exception("Forbidden value (" + questId + ") on element questId.");
         }
-        public QuestStepValidatedMessage(short questId, short stepId)
+
+        writer.WriteVarShort((short)questId);
+        if (stepId < 0)
         {
-            this.questId = questId;
-            this.stepId = stepId;
+            throw new System.Exception("Forbidden value (" + stepId + ") on element stepId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarShort((short)stepId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        questId = (short)reader.ReadVarUhShort();
+        if (questId < 0)
         {
-            if (questId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + questId + ") on element questId.");
-            }
-
-            writer.WriteVarShort((short)questId);
-            if (stepId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + stepId + ") on element stepId.");
-            }
-
-            writer.WriteVarShort((short)stepId);
+            throw new System.Exception("Forbidden value (" + questId + ") on element of QuestStepValidatedMessage.questId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        stepId = (short)reader.ReadVarUhShort();
+        if (stepId < 0)
         {
-            questId = (short)reader.ReadVarUhShort();
-            if (questId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + questId + ") on element of QuestStepValidatedMessage.questId.");
-            }
-
-            stepId = (short)reader.ReadVarUhShort();
-            if (stepId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + stepId + ") on element of QuestStepValidatedMessage.stepId.");
-            }
-
+            throw new System.Exception("Forbidden value (" + stepId + ") on element of QuestStepValidatedMessage.stepId.");
         }
 
     }
+
 }
-
-

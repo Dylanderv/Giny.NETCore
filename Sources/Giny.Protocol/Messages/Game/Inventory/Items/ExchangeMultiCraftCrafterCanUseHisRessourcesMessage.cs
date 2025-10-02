@@ -1,36 +1,29 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class ExchangeMultiCraftCrafterCanUseHisRessourcesMessage : NetworkMessage
 {
-    public class ExchangeMultiCraftCrafterCanUseHisRessourcesMessage : NetworkMessage
+    public const ushort Id = 3260;
+    public override ushort MessageId => Id;
+
+    public bool allowed;
+
+    public ExchangeMultiCraftCrafterCanUseHisRessourcesMessage()
     {
-        public const ushort Id = 3260;
-        public override ushort MessageId => Id;
-
-        public bool allowed;
-
-        public ExchangeMultiCraftCrafterCanUseHisRessourcesMessage()
-        {
-        }
-        public ExchangeMultiCraftCrafterCanUseHisRessourcesMessage(bool allowed)
-        {
-            this.allowed = allowed;
-        }
-        public override void Serialize(IDataWriter writer)
-        {
-            writer.WriteBoolean((bool)allowed);
-        }
-        public override void Deserialize(IDataReader reader)
-        {
-            allowed = (bool)reader.ReadBoolean();
-        }
-
     }
+    public ExchangeMultiCraftCrafterCanUseHisRessourcesMessage(bool allowed)
+    {
+        this.allowed = allowed;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        writer.WriteBoolean((bool)allowed);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        allowed = (bool)reader.ReadBoolean();
+    }
+
 }
-
-

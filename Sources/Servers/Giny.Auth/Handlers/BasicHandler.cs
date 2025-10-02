@@ -1,18 +1,12 @@
 ﻿using Giny.Auth.Network;
 using Giny.Protocol.Messages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.Auth.Handlers
+namespace Giny.Auth.Handlers;
+
+class BasicHandler
 {
-    class BasicHandler
+    public static void HandleBasicPing(BasicPingMessage message, AuthClient client)
     {
-        public static void HandleBasicPing(BasicPingMessage message, AuthClient client)
-        {
-            client.Send(new BasicPongMessage(message.quiet));
-        }
+        client.Send(new BasicPongMessage(message.quiet));
     }
 }

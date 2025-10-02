@@ -1,64 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Giny.Core.IO.Interfaces;
 
-namespace Giny.Core.IO.Interfaces
+public interface IDataReader : IDisposable
 {
-    public interface IDataReader : IDisposable
-    {
-        long Position { get; }
+    long Position { get; }
 
-        long BytesAvailable { get; }
+    long BytesAvailable { get; }
 
-        short ReadShort();
+    short ReadShort();
 
-        byte[] Data { get; }
+    byte[] Data { get; }
 
-        int ReadInt();
+    int ReadInt();
 
-        long ReadLong();
+    long ReadLong();
 
-        ushort ReadUShort();
+    ushort ReadUShort();
 
-        uint ReadUInt();
+    uint ReadUInt();
 
-        ulong ReadULong();
+    ulong ReadULong();
 
-        byte ReadByte();
+    byte ReadByte();
 
-        sbyte ReadSByte();
+    sbyte ReadSByte();
 
-        byte[] ReadBytes(int n);
+    byte[] ReadBytes(int n);
 
-        bool ReadBoolean();
+    bool ReadBoolean();
 
-        char ReadChar();
+    char ReadChar();
 
-        double ReadDouble();
+    double ReadDouble();
 
-        float ReadFloat();
+    float ReadFloat();
 
-        string ReadUTF();
+    string ReadUTF();
 
-        string ReadUTFBytes(ushort len);
+    string ReadUTFBytes(ushort len);
 
-        ushort ReadVarUhShort();
+    ushort ReadVarUhShort();
 
-        long ReadVarLong();
+    long ReadVarLong();
 
-        uint ReadVarUhInt();
+    uint ReadVarUhInt();
 
-        int ReadVarInt();
+    int ReadVarInt();
 
-        short ReadVarShort();
+    short ReadVarShort();
 
-        ulong ReadVarUhLong();
+    ulong ReadVarUhLong();
 
-        void Seek(int offset, SeekOrigin seekOrigin);
+    void Seek(int offset, SeekOrigin seekOrigin);
 
-        void SkipBytes(int n);
-    }
+    void SkipBytes(int n);
 }

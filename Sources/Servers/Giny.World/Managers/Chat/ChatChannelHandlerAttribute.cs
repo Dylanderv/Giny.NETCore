@@ -1,22 +1,16 @@
 ﻿using Giny.Protocol.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Chat
+namespace Giny.World.Managers.Chat;
+
+public class ChatChannelHandlerAttribute : Attribute
 {
-    public class ChatChannelHandlerAttribute : Attribute
+    public ChatActivableChannelsEnum Channel
     {
-        public ChatActivableChannelsEnum Channel
-        {
-            get; set;
-        }
+        get; set;
+    }
 
-        public ChatChannelHandlerAttribute(ChatActivableChannelsEnum channel)
-        {
-            this.Channel = channel;
-        }
+    public ChatChannelHandlerAttribute(ChatActivableChannelsEnum channel)
+    {
+        this.Channel = channel;
     }
 }

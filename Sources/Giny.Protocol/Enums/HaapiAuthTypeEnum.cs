@@ -1,12 +1,8 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum HaapiAuthTypeEnum
 {
-    public enum HaapiAuthTypeEnum
-    {
-        HAAPI_API_KEY = 0,
-        HAAPI_TOKEN = 1,
+    HAAPI_API_KEY = 0,
+    HAAPI_TOKEN = 1,
 
-    }
 }
-

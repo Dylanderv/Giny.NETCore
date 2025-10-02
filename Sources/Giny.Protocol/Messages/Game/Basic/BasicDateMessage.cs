@@ -1,74 +1,67 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class BasicDateMessage : NetworkMessage
 {
-    public class BasicDateMessage : NetworkMessage
+    public const ushort Id = 7835;
+    public override ushort MessageId => Id;
+
+    public byte day;
+    public byte month;
+    public short year;
+
+    public BasicDateMessage()
     {
-        public const ushort Id = 7835;
-        public override ushort MessageId => Id;
-
-        public byte day;
-        public byte month;
-        public short year;
-
-        public BasicDateMessage()
+    }
+    public BasicDateMessage(byte day, byte month, short year)
+    {
+        this.day = day;
+        this.month = month;
+        this.year = year;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (day < 0)
         {
+            throw new System.Exception("Forbidden value (" + day + ") on element day.");
         }
-        public BasicDateMessage(byte day, byte month, short year)
+
+        writer.WriteByte((byte)day);
+        if (month < 0)
         {
-            this.day = day;
-            this.month = month;
-            this.year = year;
+            throw new System.Exception("Forbidden value (" + month + ") on element month.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteByte((byte)month);
+        if (year < 0)
         {
-            if (day < 0)
-            {
-                throw new System.Exception("Forbidden value (" + day + ") on element day.");
-            }
-
-            writer.WriteByte((byte)day);
-            if (month < 0)
-            {
-                throw new System.Exception("Forbidden value (" + month + ") on element month.");
-            }
-
-            writer.WriteByte((byte)month);
-            if (year < 0)
-            {
-                throw new System.Exception("Forbidden value (" + year + ") on element year.");
-            }
-
-            writer.WriteShort((short)year);
+            throw new System.Exception("Forbidden value (" + year + ") on element year.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        writer.WriteShort((short)year);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        day = (byte)reader.ReadByte();
+        if (day < 0)
         {
-            day = (byte)reader.ReadByte();
-            if (day < 0)
-            {
-                throw new System.Exception("Forbidden value (" + day + ") on element of BasicDateMessage.day.");
-            }
+            throw new System.Exception("Forbidden value (" + day + ") on element of BasicDateMessage.day.");
+        }
 
-            month = (byte)reader.ReadByte();
-            if (month < 0)
-            {
-                throw new System.Exception("Forbidden value (" + month + ") on element of BasicDateMessage.month.");
-            }
+        month = (byte)reader.ReadByte();
+        if (month < 0)
+        {
+            throw new System.Exception("Forbidden value (" + month + ") on element of BasicDateMessage.month.");
+        }
 
-            year = (short)reader.ReadShort();
-            if (year < 0)
-            {
-                throw new System.Exception("Forbidden value (" + year + ") on element of BasicDateMessage.year.");
-            }
-
+        year = (short)reader.ReadShort();
+        if (year < 0)
+        {
+            throw new System.Exception("Forbidden value (" + year + ") on element of BasicDateMessage.year.");
         }
 
     }
+
 }
-
-

@@ -4,36 +4,30 @@ using Giny.World.Managers.Effects;
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Managers.Fights.Units;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Heals
+namespace Giny.World.Managers.Fights.Effects.Heals;
+
+[SpellEffectHandler(EffectsEnum.Effect_CasterSplashHeal)]
+public class CasterSplashHeal : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_CasterSplashHeal)]
-    public class CasterSplashHeal : SpellEffectHandler
+    public CasterSplashHeal(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public CasterSplashHeal(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
+    }
+
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        var token = GetTriggerToken<Damage>();
+
+        if (token == null || !token.Computed.HasValue)
         {
+            OnTokenMissing<Damage>();
+            return;
         }
 
-        protected override void Apply(IEnumerable<Fighter> targets)
+        foreach (var target in targets)
         {
-            var token = GetTriggerToken<Damage>();
-
-            if (token == null || !token.Computed.HasValue)
-            {
-                OnTokenMissing<Damage>();
-                return;
-            }
-
-            foreach (var target in targets)
-            {
-                double delta = token.Computed.Value * (Effect.Min / 100d);
-                target.Heal(new Healing(Source, target, EffectElementEnum.None, delta, delta, this,true));
-            }
+            double delta = token.Computed.Value * (Effect.Min / 100d);
+            target.Heal(new Healing(Source, target, EffectElementEnum.None, delta, delta, this,true));
         }
     }
 }

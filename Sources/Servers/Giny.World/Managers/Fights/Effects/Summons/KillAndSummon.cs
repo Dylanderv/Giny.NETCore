@@ -4,40 +4,34 @@ using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Records.Maps;
 using Giny.World.Records.Monsters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Summons
+namespace Giny.World.Managers.Fights.Effects.Summons;
+
+[SpellEffectHandler(EffectsEnum.Effect_KillAndSummon)]
+public class KillAndSummon : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_KillAndSummon)]
-    public class KillAndSummon : SpellEffectHandler
+    public KillAndSummon(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public KillAndSummon(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
-        {
 
-        }
+    }
 
-        protected override void Apply(IEnumerable<Fighter> targets)
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        foreach (var target in targets)
         {
-            foreach (var target in targets)
+            target.Die(Source);
+
+            MonsterRecord record = MonsterRecord.GetMonsterRecord((short)Effect.Min);
+
+            CellRecord? summonCell = GetSummonCell();
+
+            if (record != null && summonCell != null)
             {
-                target.Die(Source);
+                SummonedMonster summon = CreateSummon(record, (byte)Effect.Max, summonCell);
 
-                MonsterRecord record = MonsterRecord.GetMonsterRecord((short)Effect.Min);
-
-                CellRecord? summonCell = GetSummonCell();
-
-                if (record != null && summonCell != null)
+                if (Source.CanSummon() || !summon.UseSummonSlot())
                 {
-                    SummonedMonster summon = CreateSummon(record, (byte)Effect.Max, summonCell);
-
-                    if (Source.CanSummon() || !summon.UseSummonSlot())
-                    {
-                        Source.Fight.AddSummon(Source, summon);
-                    }
+                    Source.Fight.AddSummon(Source, summon);
                 }
             }
         }

@@ -1,60 +1,53 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class InteractiveUseEndedMessage : NetworkMessage
 {
-    public class InteractiveUseEndedMessage : NetworkMessage
+    public const ushort Id = 5459;
+    public override ushort MessageId => Id;
+
+    public int elemId;
+    public short skillId;
+
+    public InteractiveUseEndedMessage()
     {
-        public const ushort Id = 5459;
-        public override ushort MessageId => Id;
-
-        public int elemId;
-        public short skillId;
-
-        public InteractiveUseEndedMessage()
+    }
+    public InteractiveUseEndedMessage(int elemId, short skillId)
+    {
+        this.elemId = elemId;
+        this.skillId = skillId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (elemId < 0)
         {
+            throw new System.Exception("Forbidden value (" + elemId + ") on element elemId.");
         }
-        public InteractiveUseEndedMessage(int elemId, short skillId)
+
+        writer.WriteVarInt((int)elemId);
+        if (skillId < 0)
         {
-            this.elemId = elemId;
-            this.skillId = skillId;
+            throw new System.Exception("Forbidden value (" + skillId + ") on element skillId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarShort((short)skillId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        elemId = (int)reader.ReadVarUhInt();
+        if (elemId < 0)
         {
-            if (elemId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + elemId + ") on element elemId.");
-            }
-
-            writer.WriteVarInt((int)elemId);
-            if (skillId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + skillId + ") on element skillId.");
-            }
-
-            writer.WriteVarShort((short)skillId);
+            throw new System.Exception("Forbidden value (" + elemId + ") on element of InteractiveUseEndedMessage.elemId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        skillId = (short)reader.ReadVarUhShort();
+        if (skillId < 0)
         {
-            elemId = (int)reader.ReadVarUhInt();
-            if (elemId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + elemId + ") on element of InteractiveUseEndedMessage.elemId.");
-            }
-
-            skillId = (short)reader.ReadVarUhShort();
-            if (skillId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + skillId + ") on element of InteractiveUseEndedMessage.skillId.");
-            }
-
+            throw new System.Exception("Forbidden value (" + skillId + ") on element of InteractiveUseEndedMessage.skillId.");
         }
 
     }
+
 }
-
-

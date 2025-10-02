@@ -1,13 +1,9 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum HavenBagDailyLoteryErrorEnum
 {
-    public enum HavenBagDailyLoteryErrorEnum
-    {
-        HAVENBAG_DAILY_LOTERY_OK = 0,
-        HAVENBAG_DAILY_LOTERY_ALREADYUSED = 1,
-        HAVENBAG_DAILY_LOTERY_ERROR = 2,
+    HAVENBAG_DAILY_LOTERY_OK = 0,
+    HAVENBAG_DAILY_LOTERY_ALREADYUSED = 1,
+    HAVENBAG_DAILY_LOTERY_ERROR = 2,
 
-    }
 }
-

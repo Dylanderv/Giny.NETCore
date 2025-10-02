@@ -1,60 +1,53 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class InteractiveUseErrorMessage : NetworkMessage
 {
-    public class InteractiveUseErrorMessage : NetworkMessage
+    public const ushort Id = 5734;
+    public override ushort MessageId => Id;
+
+    public int elemId;
+    public int skillInstanceUid;
+
+    public InteractiveUseErrorMessage()
     {
-        public const ushort Id = 5734;
-        public override ushort MessageId => Id;
-
-        public int elemId;
-        public int skillInstanceUid;
-
-        public InteractiveUseErrorMessage()
+    }
+    public InteractiveUseErrorMessage(int elemId, int skillInstanceUid)
+    {
+        this.elemId = elemId;
+        this.skillInstanceUid = skillInstanceUid;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (elemId < 0)
         {
+            throw new System.Exception("Forbidden value (" + elemId + ") on element elemId.");
         }
-        public InteractiveUseErrorMessage(int elemId, int skillInstanceUid)
+
+        writer.WriteVarInt((int)elemId);
+        if (skillInstanceUid < 0)
         {
-            this.elemId = elemId;
-            this.skillInstanceUid = skillInstanceUid;
+            throw new System.Exception("Forbidden value (" + skillInstanceUid + ") on element skillInstanceUid.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarInt((int)skillInstanceUid);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        elemId = (int)reader.ReadVarUhInt();
+        if (elemId < 0)
         {
-            if (elemId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + elemId + ") on element elemId.");
-            }
-
-            writer.WriteVarInt((int)elemId);
-            if (skillInstanceUid < 0)
-            {
-                throw new System.Exception("Forbidden value (" + skillInstanceUid + ") on element skillInstanceUid.");
-            }
-
-            writer.WriteVarInt((int)skillInstanceUid);
+            throw new System.Exception("Forbidden value (" + elemId + ") on element of InteractiveUseSystem.ExceptionMessage.elemId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        skillInstanceUid = (int)reader.ReadVarUhInt();
+        if (skillInstanceUid < 0)
         {
-            elemId = (int)reader.ReadVarUhInt();
-            if (elemId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + elemId + ") on element of InteractiveUseSystem.ExceptionMessage.elemId.");
-            }
-
-            skillInstanceUid = (int)reader.ReadVarUhInt();
-            if (skillInstanceUid < 0)
-            {
-                throw new System.Exception("Forbidden value (" + skillInstanceUid + ") on element of InteractiveUseSystem.ExceptionMessage.skillInstanceUid.");
-            }
-
+            throw new System.Exception("Forbidden value (" + skillInstanceUid + ") on element of InteractiveUseSystem.ExceptionMessage.skillInstanceUid.");
         }
 
     }
+
 }
-
-

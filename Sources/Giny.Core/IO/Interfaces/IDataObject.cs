@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Giny.Core.IO.Interfaces;
 
-namespace Giny.Core.IO.Interfaces
+public interface IDataObject
 {
-    public interface IDataObject
-    {
-    }
 }

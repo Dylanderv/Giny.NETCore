@@ -1,84 +1,77 @@
 ﻿using Giny.Core;
 using Giny.Core.DesignPattern;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Modules
+namespace Giny.World.Modules;
+
+public class ModuleManager : Singleton<ModuleManager>
 {
-    public class ModuleManager : Singleton<ModuleManager>
+    private const string ModulesPath = "Modules\\";
+
+    private const string Extension = ".dll";
+
+    private readonly Dictionary<string, IModule> m_modules = new Dictionary<string, IModule>();
+
+    private readonly List<Type> m_modulesTypes = new List<Type>();
+
+    [StartupInvoke("Modules", StartupInvokePriority.Initial)]
+    public void Initialize()
     {
-        private const string ModulesPath = "Modules\\";
 
-        private const string Extension = ".dll";
+        string path = Path.Combine(Environment.CurrentDirectory, ModulesPath);
 
-        private readonly Dictionary<string, IModule> m_modules = new Dictionary<string, IModule>();
-
-        private readonly List<Type> m_modulesTypes = new List<Type>();
-
-        [StartupInvoke("Modules", StartupInvokePriority.Initial)]
-        public void Initialize()
+        if (!Directory.Exists(path))
         {
+            Directory.CreateDirectory(path);
+        }
 
-            string path = Path.Combine(Environment.CurrentDirectory, ModulesPath);
-
-            if (!Directory.Exists(path))
+        foreach (var file in Directory.GetFiles(path))
+        {
+            if (Path.GetExtension(file).ToLower() == Extension)
             {
-                Directory.CreateDirectory(path);
-            }
+                Assembly assembly = Assembly.LoadFile(file);
 
-            foreach (var file in Directory.GetFiles(path))
-            {
-                if (Path.GetExtension(file).ToLower() == Extension)
+                IEnumerable<Type> types = assembly.GetTypes();
+
+                m_modulesTypes.AddRange(types);
+
+                foreach (var type in types)
                 {
-                    Assembly assembly = Assembly.LoadFile(file);
-
-                    IEnumerable<Type> types = assembly.GetTypes();
-
-                    m_modulesTypes.AddRange(types);
-
-                    foreach (var type in types)
+                    if (type.GetCustomAttribute<ModuleAttribute>() != null)
                     {
-                        if (type.GetCustomAttribute<ModuleAttribute>() != null)
+                        if (type.GetInterfaces().Contains(typeof(IModule)))
                         {
-                            if (type.GetInterfaces().Contains(typeof(IModule)))
-                            {
-                                LoadModule(type);
-                            }
+                            LoadModule(type);
                         }
                     }
                 }
             }
-            Logger.Write($"{m_modules.Count} module(s) found.");
-            AssemblyCore.OnAssembliesLoaded();
         }
+        Logger.Write($"{m_modules.Count} module(s) found.");
+        AssemblyCore.OnAssembliesLoaded();
+    }
 
-        [StartupInvoke("Modules", StartupInvokePriority.Modules)]
-        public void LoadModules()
+    [StartupInvoke("Modules", StartupInvokePriority.Modules)]
+    public void LoadModules()
+    {
+        foreach (var module in m_modules)
         {
-            foreach (var module in m_modules)
-            {
-                Logger.Write("Loading module '" + module.Key + "'", Channels.Info);
-                module.Value.Initialize();
-                module.Value.CreateHooks();
-            }
+            Logger.Write("Loading module '" + module.Key + "'", Channels.Info);
+            module.Value.Initialize();
+            module.Value.CreateHooks();
         }
+    }
 
 
-        public IEnumerable<Type> GetModuleTypes()
-        {
-            return m_modulesTypes;
-        }
-        private void LoadModule(Type type)
-        {
+    public IEnumerable<Type> GetModuleTypes()
+    {
+        return m_modulesTypes;
+    }
+    private void LoadModule(Type type)
+    {
 
-            string moduleName = type.GetCustomAttribute<ModuleAttribute>().ModuleName;
-            IModule module = (IModule)Activator.CreateInstance(type);
-            m_modules.Add(moduleName, module);
-        }
+        string moduleName = type.GetCustomAttribute<ModuleAttribute>().ModuleName;
+        IModule module = (IModule)Activator.CreateInstance(type);
+        m_modules.Add(moduleName, module);
     }
 }

@@ -1,39 +1,33 @@
 ﻿using Giny.Core.IO;
 using Giny.Zaap.Network;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.Zaap.Protocol
+namespace Giny.Zaap.Protocol;
+
+public class ZaapMustUpdateGetResult : ZaapMessage
 {
-    public class ZaapMustUpdateGetResult : ZaapMessage
+    public bool Success
     {
-        public bool Success
-        {
-            get;
-            private set;
-        }
+        get;
+        private set;
+    }
 
-        public ZaapMustUpdateGetResult(bool success)
-        {
-            this.Success = success;
-        }
+    public ZaapMustUpdateGetResult(bool success)
+    {
+        this.Success = success;
+    }
 
-        public override void Deserialize(TProtocol protocol, BigEndianReader reader)
-        {
-            throw new NotImplementedException();
-        }
+    public override void Deserialize(TProtocol protocol, BigEndianReader reader)
+    {
+        throw new NotImplementedException();
+    }
 
-        public override void Serialize(TProtocol protocol, BigEndianWriter writer)
-        {
-            protocol.WriteFieldBegin(new TField("success", TType.BOOL, 0), writer);
+    public override void Serialize(TProtocol protocol, BigEndianWriter writer)
+    {
+        protocol.WriteFieldBegin(new TField("success", TType.BOOL, 0), writer);
 
-            writer.WriteBoolean(false);
+        writer.WriteBoolean(false);
 
-            protocol.WriteFieldStop(writer);
+        protocol.WriteFieldStop(writer);
 
-        }
     }
 }

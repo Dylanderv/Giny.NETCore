@@ -2,131 +2,124 @@
 using Giny.ORM.Attributes;
 using Giny.ORM.Interfaces;
 using Giny.Protocol.Types;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Records.Items
+namespace Giny.World.Records.Items;
+
+[Table("bidshop_items")]
+public class BidShopItemRecord : AbstractItem, IRecord
 {
-    [Table("bidshop_items")]
-    public class BidShopItemRecord : AbstractItem, IRecord
+    [Container]
+    private static readonly ConcurrentDictionary<long, BidShopItemRecord> BidshopItems = new ConcurrentDictionary<long, BidShopItemRecord>();
+
+    [Ignore]
+    public long Id => UId;
+
+    public long BidShopId
     {
-        [Container]
-        private static readonly ConcurrentDictionary<long, BidShopItemRecord> BidshopItems = new ConcurrentDictionary<long, BidShopItemRecord>();
+        get;
+        set;
+    }
+    public int AccountId
+    {
+        get;
+        set;
+    }
+    [Update]
+    public long Price
+    {
+        get;
+        set;
+    }
+    [Update]
+    public bool Sold
+    {
+        get;
+        set;
+    }
 
-        [Ignore]
-        public long Id => UId;
+    public override AbstractItem CloneWithoutUID()
+    {
+        return new BidShopItemRecord()
+        {
+            BidShopId = BidShopId,
+            AccountId = this.AccountId,
+            Price = Price,
+            AppearanceId = this.AppearanceId,
+            Effects = this.Effects.Clone(),
+            GId = GId,
+            Look = Look,
+            Position = this.Position,
+            Quantity = this.Quantity,
+            UId = this.UId,
+            Sold = Sold,
+        };
+    }
 
-        public long BidShopId
+    public override AbstractItem CloneWithUID()
+    {
+        return new BidShopItemRecord()
         {
-            get;
-            set;
-        }
-        public int AccountId
-        {
-            get;
-            set;
-        }
-        [Update]
-        public long Price
-        {
-            get;
-            set;
-        }
-        [Update]
-        public bool Sold
-        {
-            get;
-            set;
-        }
+            BidShopId = BidShopId,
+            AccountId = this.AccountId,
+            Price = Price,
+            AppearanceId = this.AppearanceId,
+            Effects = this.Effects.Clone(),
+            GId = GId,
+            Look = Look,
+            Position = this.Position,
+            Quantity = this.Quantity,
+            UId = this.UId,
+            Sold = Sold,
+        };
 
-        public override AbstractItem CloneWithoutUID()
-        {
-            return new BidShopItemRecord()
-            {
-                BidShopId = BidShopId,
-                AccountId = this.AccountId,
-                Price = Price,
-                AppearanceId = this.AppearanceId,
-                Effects = this.Effects.Clone(),
-                GId = GId,
-                Look = Look,
-                Position = this.Position,
-                Quantity = this.Quantity,
-                UId = this.UId,
-                Sold = Sold,
-            };
-        }
-
-        public override AbstractItem CloneWithUID()
-        {
-            return new BidShopItemRecord()
-            {
-                BidShopId = BidShopId,
-                AccountId = this.AccountId,
-                Price = Price,
-                AppearanceId = this.AppearanceId,
-                Effects = this.Effects.Clone(),
-                GId = GId,
-                Look = Look,
-                Position = this.Position,
-                Quantity = this.Quantity,
-                UId = this.UId,
-                Sold = Sold,
-            };
-
-        }
+    }
 
     
 
-        public BidExchangerObjectInfo GetBidExchangerObjectInfo(long[] prices)
+    public BidExchangerObjectInfo GetBidExchangerObjectInfo(long[] prices)
+    {
+        return new BidExchangerObjectInfo()
         {
-            return new BidExchangerObjectInfo()
-            {
-                effects = Effects.Select(x => x.GetObjectEffect()).ToArray(),
-                objectUID = UId,
-                prices = prices,
-                objectGID = GId,
-                objectType = (int)Record.TypeEnum,
-            };
-        }
-        [Annotation("date")]
-        public ObjectItemQuantityPriceDateEffects GetObjectItemQuantityPriceDateEffects()
+            effects = Effects.Select(x => x.GetObjectEffect()).ToArray(),
+            objectUID = UId,
+            prices = prices,
+            objectGID = GId,
+            objectType = (int)Record.TypeEnum,
+        };
+    }
+    [Annotation("date")]
+    public ObjectItemQuantityPriceDateEffects GetObjectItemQuantityPriceDateEffects()
+    {
+        return new ObjectItemQuantityPriceDateEffects()
         {
-            return new ObjectItemQuantityPriceDateEffects()
-            {
-                objectGID = GId,
-                price = Price,
-                quantity = Quantity,
-                date = 19999,
-                effects = new ObjectEffects(Effects.Select(x => x.GetObjectEffect()).ToArray()),
-            };
-        }
-        public static IEnumerable<BidShopItemRecord> GetItems()
+            objectGID = GId,
+            price = Price,
+            quantity = Quantity,
+            date = 19999,
+            effects = new ObjectEffects(Effects.Select(x => x.GetObjectEffect()).ToArray()),
+        };
+    }
+    public static IEnumerable<BidShopItemRecord> GetItems()
+    {
+        return BidshopItems.Values;
+    }
+    [Annotation("unsoldDelay")]
+    public ObjectItemToSellInBid GetObjectItemToSellInBid()
+    {
+        return new ObjectItemToSellInBid()
         {
-            return BidshopItems.Values;
-        }
-        [Annotation("unsoldDelay")]
-        public ObjectItemToSellInBid GetObjectItemToSellInBid()
-        {
-            return new ObjectItemToSellInBid()
-            {
-                effects = Effects.Select(x => x.GetObjectEffect()).ToArray(),
-                objectGID = GId,
-                objectPrice = Price,
-                objectUID = UId,
-                quantity = Quantity,
-                unsoldDelay = 0, /* ??? */
-            };
-        }
+            effects = Effects.Select(x => x.GetObjectEffect()).ToArray(),
+            objectGID = GId,
+            objectPrice = Price,
+            objectUID = UId,
+            quantity = Quantity,
+            unsoldDelay = 0, /* ??? */
+        };
+    }
 
-        public override void OnCreated()
-        {
+    public override void OnCreated()
+    {
 
-        }
     }
 }

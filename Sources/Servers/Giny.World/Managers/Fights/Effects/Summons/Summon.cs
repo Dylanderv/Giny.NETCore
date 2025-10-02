@@ -1,52 +1,44 @@
-﻿using Giny.Core.DesignPattern;
-using Giny.Protocol.Enums;
+﻿using Giny.Protocol.Enums;
 using Giny.World.Managers.Effects;
 
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
-using Giny.World.Records.Maps;
 using Giny.World.Records.Monsters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Summons
+namespace Giny.World.Managers.Fights.Effects.Summons;
+
+[SpellEffectHandler(EffectsEnum.Effect_Summon)]
+public class Summon : SpellEffectHandler
 {
-    [SpellEffectHandler(EffectsEnum.Effect_Summon)]
-    public class Summon : SpellEffectHandler
+    public Summon(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public Summon(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
+
+    }
+
+
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        MonsterRecord record = MonsterRecord.GetMonsterRecord((short)Effect.Min);
+
+        if (record != null)
         {
+            var summonCell = GetSummonCell();
 
-        }
-
-
-        protected override void Apply(IEnumerable<Fighter> targets)
-        {
-            MonsterRecord record = MonsterRecord.GetMonsterRecord((short)Effect.Min);
-
-            if (record != null)
+            if (summonCell == null)
             {
-                var summonCell = GetSummonCell();
+                summonCell = CastHandler.Cast.GetParents().First().BaseTargetCell;
+            }
+            if (summonCell != null)
+            {
+                SummonedMonster summon = CreateSummon(record, (byte)Effect.Max, summonCell);
 
-                if (summonCell == null)
+                if (Source.CanSummon() || !summon.UseSummonSlot())
                 {
-                    summonCell = CastHandler.Cast.GetParents().First().BaseTargetCell;
-                }
-                if (summonCell != null)
-                {
-                    SummonedMonster summon = CreateSummon(record, (byte)Effect.Max, summonCell);
-
-                    if (Source.CanSummon() || !summon.UseSummonSlot())
-                    {
-                        Source.Fight.AddSummon(Source, summon);
-                    }
+                    Source.Fight.AddSummon(Source, summon);
                 }
             }
-
-
         }
+
+
     }
 }

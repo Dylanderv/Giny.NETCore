@@ -1,202 +1,196 @@
 ﻿using Giny.Protocol.Custom.Enums;
 using Giny.World.Managers.Fights.Fighters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Timeline
+namespace Giny.World.Managers.Fights.Timeline;
+
+public class FightTimeline
 {
-    public class FightTimeline
+    public List<Fighter> Fighters
     {
-        public List<Fighter> Fighters
+        get;
+        private set;
+    }
+    public Fight Fight
+    {
+        get;
+        private set;
+    }
+    public Fighter Current
+    {
+        get
         {
-            get;
-            private set;
+            return (this.Index == -1 || this.Index >= this.Fighters.Count) ? null : this.Fighters[this.Index];
         }
-        public Fight Fight
+    }
+    public int Index
+    {
+        get;
+        private set;
+    }
+    public int Count
+    {
+        get
         {
-            get;
-            private set;
+            return this.Fighters.Count;
         }
-        public Fighter Current
+    }
+    public int RoundNumber
+    {
+        get;
+        private set;
+    }
+    public bool NewRound
+    {
+        get;
+        private set;
+    }
+    public FightTimeline(Fight fight)
+    {
+        this.Fight = fight;
+        this.Fighters = new List<Fighter>();
+        this.RoundNumber = 1;
+        this.Index = -1;
+    }
+    public bool RemoveFighter(Fighter fighter)
+    {
+        bool result;
+        if (!this.Fighters.Contains(fighter))
         {
-            get
+            result = false;
+        }
+        else
+        {
+            int num = this.Fighters.IndexOf(fighter);
+            this.Fighters.Remove(fighter);
+            if (num <= this.Index && num > 0)
             {
-                return (this.Index == -1 || this.Index >= this.Fighters.Count) ? null : this.Fighters[this.Index];
+                this.Index--;
             }
+            result = true;
         }
-        public int Index
+        return result;
+    }
+    public bool InsertFighter(Fighter fighter, int index)
+    {
+        bool result;
+        if (index > this.Fighters.Count)
         {
-            get;
-            private set;
+            result = false;
         }
-        public int Count
+        else
         {
-            get
+            this.Fighters.Insert(index, fighter);
+            if (index <= this.Index)
             {
-                return this.Fighters.Count;
+                this.Index++;
             }
+            result = true;
         }
-        public int RoundNumber
+        return result;
+    }
+    public bool SelectNextFighter()
+    {
+        bool result;
+        if (this.Fighters.Count == 0)
         {
-            get;
-            private set;
-        }
-        public bool NewRound
-        {
-            get;
-            private set;
-        }
-        public FightTimeline(Fight fight)
-        {
-            this.Fight = fight;
-            this.Fighters = new List<Fighter>();
-            this.RoundNumber = 1;
             this.Index = -1;
+            result = false;
         }
-        public bool RemoveFighter(Fighter fighter)
+        else
         {
-            bool result;
-            if (!this.Fighters.Contains(fighter))
+            int num = 0;
+            int num2 = (this.Index + 1 < this.Fighters.Count) ? (this.Index + 1) : 0;
+            if (num2 == 0)
             {
-                result = false;
+                this.RoundNumber += 1;
+                this.NewRound = true;
             }
             else
             {
-                int num = this.Fighters.IndexOf(fighter);
-                this.Fighters.Remove(fighter);
-                if (num <= this.Index && num > 0)
-                {
-                    this.Index--;
-                }
-                result = true;
+                this.NewRound = false;
             }
-            return result;
-        }
-        public bool InsertFighter(Fighter fighter, int index)
-        {
-            bool result;
-            if (index > this.Fighters.Count)
+            while (!this.Fighters[num2].CanPlay() && num < this.Fighters.Count)
             {
-                result = false;
-            }
-            else
-            {
-                this.Fighters.Insert(index, fighter);
-                if (index <= this.Index)
+                num2 = ((num2 + 1 < this.Fighters.Count) ? (num2 + 1) : 0);
+                if (num2 == 0)
                 {
-                    this.Index++;
+                    this.RoundNumber += 1;
+                    this.NewRound = true;
                 }
-                result = true;
+                num++;
             }
-            return result;
-        }
-        public bool SelectNextFighter()
-        {
-            bool result;
-            if (this.Fighters.Count == 0)
+            if (!this.Fighters[num2].CanPlay())
             {
                 this.Index = -1;
                 result = false;
             }
             else
             {
-                int num = 0;
-                int num2 = (this.Index + 1 < this.Fighters.Count) ? (this.Index + 1) : 0;
-                if (num2 == 0)
-                {
-                    this.RoundNumber += 1;
-                    this.NewRound = true;
-                }
-                else
-                {
-                    this.NewRound = false;
-                }
-                while (!this.Fighters[num2].CanPlay() && num < this.Fighters.Count)
-                {
-                    num2 = ((num2 + 1 < this.Fighters.Count) ? (num2 + 1) : 0);
-                    if (num2 == 0)
-                    {
-                        this.RoundNumber += 1;
-                        this.NewRound = true;
-                    }
-                    num++;
-                }
-                if (!this.Fighters[num2].CanPlay())
-                {
-                    this.Index = -1;
-                    result = false;
-                }
-                else
-                {
-                    this.Index = num2;
-                    result = true;
-                }
+                this.Index = num2;
+                result = true;
             }
-            return result;
         }
-        public int IndexOf(Fighter fighter)
-        {
-            return Fighters.IndexOf(fighter);
-        }
-        public void OrderLine()
-        {
-            IOrderedEnumerable<Fighter> orderedEnumerable =
-                from entry in this.Fight.BlueTeam.GetFighters<Fighter>(false)
-                orderby entry.Stats[CharacteristicEnum.INITIATIVE].Total() descending
-                select entry;
-            IOrderedEnumerable<Fighter> orderedEnumerable2 =
-                from entry in this.Fight.RedTeam.GetFighters<Fighter>(false)
-                orderby entry.Stats[CharacteristicEnum.INITIATIVE].Total() descending
-                select entry;
+        return result;
+    }
+    public int IndexOf(Fighter fighter)
+    {
+        return Fighters.IndexOf(fighter);
+    }
+    public void OrderLine()
+    {
+        IOrderedEnumerable<Fighter> orderedEnumerable =
+            from entry in this.Fight.BlueTeam.GetFighters<Fighter>(false)
+            orderby entry.Stats[CharacteristicEnum.INITIATIVE].Total() descending
+            select entry;
+        IOrderedEnumerable<Fighter> orderedEnumerable2 =
+            from entry in this.Fight.RedTeam.GetFighters<Fighter>(false)
+            orderby entry.Stats[CharacteristicEnum.INITIATIVE].Total() descending
+            select entry;
 
-            bool flag = orderedEnumerable.First().Stats[CharacteristicEnum.INITIATIVE].Total() > orderedEnumerable2.First().Stats[CharacteristicEnum.INITIATIVE].Total();
-            System.Collections.Generic.IEnumerator<Fighter> enumerator = orderedEnumerable.GetEnumerator();
-            System.Collections.Generic.IEnumerator<Fighter> enumerator2 = orderedEnumerable2.GetEnumerator();
-            System.Collections.Generic.List<Fighter> list = new System.Collections.Generic.List<Fighter>();
-            bool flag2;
-            bool flag3;
-            while ((flag2 = enumerator.MoveNext()) | (flag3 = enumerator2.MoveNext()))
+        bool flag = orderedEnumerable.First().Stats[CharacteristicEnum.INITIATIVE].Total() > orderedEnumerable2.First().Stats[CharacteristicEnum.INITIATIVE].Total();
+        System.Collections.Generic.IEnumerator<Fighter> enumerator = orderedEnumerable.GetEnumerator();
+        System.Collections.Generic.IEnumerator<Fighter> enumerator2 = orderedEnumerable2.GetEnumerator();
+        System.Collections.Generic.List<Fighter> list = new System.Collections.Generic.List<Fighter>();
+        bool flag2;
+        bool flag3;
+        while ((flag2 = enumerator.MoveNext()) | (flag3 = enumerator2.MoveNext()))
+        {
+            if (flag)
             {
-                if (flag)
+                if (flag2)
                 {
-                    if (flag2)
-                    {
-                        list.Add(enumerator.Current);
-                    }
-                    if (flag3)
-                    {
-                        list.Add(enumerator2.Current);
-                    }
+                    list.Add(enumerator.Current);
                 }
-                else
+                if (flag3)
                 {
-                    if (flag3)
-                    {
-                        list.Add(enumerator2.Current);
-                    }
-                    if (flag2)
-                    {
-                        list.Add(enumerator.Current);
-                    }
+                    list.Add(enumerator2.Current);
                 }
             }
-            this.Fighters = list;
-            this.Index = 0;
+            else
+            {
+                if (flag3)
+                {
+                    list.Add(enumerator2.Current);
+                }
+                if (flag2)
+                {
+                    list.Add(enumerator.Current);
+                }
+            }
         }
-        public bool IsIndexValid(int index)
-        {
-            return Fighters[index].Alive;
-        }
-        public Fighter[] GetAlives()
-        {
-            return Fighters.FindAll(x => x.Alive).ToArray();
-        }
-        public Fighter[] GetDeads()
-        {
-            return Fighters.FindAll(x => !x.Alive).ToArray();
-        }
+        this.Fighters = list;
+        this.Index = 0;
+    }
+    public bool IsIndexValid(int index)
+    {
+        return Fighters[index].Alive;
+    }
+    public Fighter[] GetAlives()
+    {
+        return Fighters.FindAll(x => x.Alive).ToArray();
+    }
+    public Fighter[] GetDeads()
+    {
+        return Fighters.FindAll(x => !x.Alive).ToArray();
     }
 }

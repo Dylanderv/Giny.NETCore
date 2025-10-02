@@ -1,74 +1,67 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class ChatSmileyMessage : NetworkMessage
 {
-    public class ChatSmileyMessage : NetworkMessage
+    public const ushort Id = 9440;
+    public override ushort MessageId => Id;
+
+    public double entityId;
+    public short smileyId;
+    public int accountId;
+
+    public ChatSmileyMessage()
     {
-        public const ushort Id = 9440;
-        public override ushort MessageId => Id;
-
-        public double entityId;
-        public short smileyId;
-        public int accountId;
-
-        public ChatSmileyMessage()
+    }
+    public ChatSmileyMessage(double entityId, short smileyId, int accountId)
+    {
+        this.entityId = entityId;
+        this.smileyId = smileyId;
+        this.accountId = accountId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (entityId < -9007199254740992 || entityId > 9007199254740992)
         {
+            throw new System.Exception("Forbidden value (" + entityId + ") on element entityId.");
         }
-        public ChatSmileyMessage(double entityId, short smileyId, int accountId)
+
+        writer.WriteDouble((double)entityId);
+        if (smileyId < 0)
         {
-            this.entityId = entityId;
-            this.smileyId = smileyId;
-            this.accountId = accountId;
+            throw new System.Exception("Forbidden value (" + smileyId + ") on element smileyId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarShort((short)smileyId);
+        if (accountId < 0)
         {
-            if (entityId < -9007199254740992 || entityId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + entityId + ") on element entityId.");
-            }
-
-            writer.WriteDouble((double)entityId);
-            if (smileyId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + smileyId + ") on element smileyId.");
-            }
-
-            writer.WriteVarShort((short)smileyId);
-            if (accountId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + accountId + ") on element accountId.");
-            }
-
-            writer.WriteInt((int)accountId);
+            throw new System.Exception("Forbidden value (" + accountId + ") on element accountId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        writer.WriteInt((int)accountId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        entityId = (double)reader.ReadDouble();
+        if (entityId < -9007199254740992 || entityId > 9007199254740992)
         {
-            entityId = (double)reader.ReadDouble();
-            if (entityId < -9007199254740992 || entityId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + entityId + ") on element of ChatSmileyMessage.entityId.");
-            }
+            throw new System.Exception("Forbidden value (" + entityId + ") on element of ChatSmileyMessage.entityId.");
+        }
 
-            smileyId = (short)reader.ReadVarUhShort();
-            if (smileyId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + smileyId + ") on element of ChatSmileyMessage.smileyId.");
-            }
+        smileyId = (short)reader.ReadVarUhShort();
+        if (smileyId < 0)
+        {
+            throw new System.Exception("Forbidden value (" + smileyId + ") on element of ChatSmileyMessage.smileyId.");
+        }
 
-            accountId = (int)reader.ReadInt();
-            if (accountId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + accountId + ") on element of ChatSmileyMessage.accountId.");
-            }
-
+        accountId = (int)reader.ReadInt();
+        if (accountId < 0)
+        {
+            throw new System.Exception("Forbidden value (" + accountId + ") on element of ChatSmileyMessage.accountId.");
         }
 
     }
+
 }
-
-

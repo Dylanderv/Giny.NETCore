@@ -4,68 +4,61 @@ using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Managers.Fights.Zones;
 using Giny.World.Records.Maps;
-using Giny.World.Records.Spells;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Marks
+namespace Giny.World.Managers.Fights.Marks;
+
+public class Rune : Mark
 {
-    public class Rune : Mark
+    public int Duration
     {
-        public int Duration
-        {
-            get;
-            set;
-        }
-        public Rune(int id, EffectDice effect, Zone zone, MarkTriggerType triggers, Color color,
-            Fighter source, CellRecord centerCell, Spell markSpell, Spell triggerSpell) :
-            base(id, effect, zone, triggers, color, source, centerCell, markSpell, triggerSpell)
-        {
-            this.Duration = effect.Duration;
-        }
+        get;
+        set;
+    }
+    public Rune(int id, EffectDice effect, Zone zone, MarkTriggerType triggers, Color color,
+        Fighter source, CellRecord centerCell, Spell markSpell, Spell triggerSpell) :
+        base(id, effect, zone, triggers, color, source, centerCell, markSpell, triggerSpell)
+    {
+        this.Duration = effect.Duration;
+    }
 
-        public override bool InterceptMovement => false;
+    public override bool InterceptMovement => false;
 
-        public override GameActionMarkTypeEnum Type => GameActionMarkTypeEnum.RUNE;
+    public override GameActionMarkTypeEnum Type => GameActionMarkTypeEnum.RUNE;
 
-        public override bool IsVisibleFor(CharacterFighter fighter)
-        {
-            return true;
-        }
+    public override bool IsVisibleFor(CharacterFighter fighter)
+    {
+        return true;
+    }
 
-        public override void OnAdded()
-        {
+    public override void OnAdded()
+    {
 
-        }
+    }
 
-        public override void OnRemoved()
-        {
+    public override void OnRemoved()
+    {
 
-        }
+    }
 
-        public override void Trigger(Fighter target, MarkTriggerType triggerType, ITriggerToken? token)
-        {
-            Source.Fight.RemoveMark(this);
-            ApplyEffects(Source.Cell);
-        }
+    public override void Trigger(Fighter target, MarkTriggerType triggerType, ITriggerToken? token)
+    {
+        Source.Fight.RemoveMark(this);
+        ApplyEffects(Source.Cell);
+    }
 
-        public bool DecrementDuration()
-        {
-            return this.Duration != -1 && (this.Duration -= 1) <= 0;
-        }
+    public bool DecrementDuration()
+    {
+        return this.Duration != -1 && (this.Duration -= 1) <= 0;
+    }
 
-        public override bool OnTurnBegin()
-        {
-            return DecrementDuration();
-        }
+    public override bool OnTurnBegin()
+    {
+        return DecrementDuration();
+    }
 
-        public override void OnUpdated()
-        {
+    public override void OnUpdated()
+    {
 
-        }
     }
 }

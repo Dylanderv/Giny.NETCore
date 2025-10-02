@@ -1,12 +1,9 @@
-﻿using System;
+﻿namespace Giny.ORM.Attributes;
 
-namespace Giny.ORM.Attributes
+public class IgnoreAttribute : Attribute
 {
-    public class IgnoreAttribute : Attribute
+    public IgnoreAttribute()
     {
-        public IgnoreAttribute()
-        {
 
-        }
     }
 }

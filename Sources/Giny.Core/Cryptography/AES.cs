@@ -1,30 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Cryptography;
 
-namespace Giny.Core.Cryptography
+namespace Giny.Core.Cryptography;
+
+public class AES
 {
-    public class AES
+    public static byte[] Encrypt(byte[] data, byte[] key)
     {
-        public static byte[] Encrypt(byte[] data, byte[] key)
+        var iv = key.Take(16).ToArray();
+        try
         {
-            var iv = key.Take(16).ToArray();
-            try
+            using (var rijndaelManaged = new RijndaelManaged { Key = key, IV = iv, Mode = CipherMode.CBC })
             {
-                using (var rijndaelManaged = new RijndaelManaged { Key = key, IV = iv, Mode = CipherMode.CBC })
-                {
-                    ICryptoTransform crypto = rijndaelManaged.CreateEncryptor();
-                    return crypto.TransformFinalBlock(data, 0, data.Length);
-                }
+                ICryptoTransform crypto = rijndaelManaged.CreateEncryptor();
+                return crypto.TransformFinalBlock(data, 0, data.Length);
             }
-            catch (CryptographicException e)
-            {
-                Console.WriteLine("A Cryptographic error occurred: {0}", e.Message);
-                return null;
-            }
+        }
+        catch (CryptographicException e)
+        {
+            Console.WriteLine("A Cryptographic error occurred: {0}", e.Message);
+            return null;
         }
     }
 }

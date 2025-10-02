@@ -1,72 +1,67 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("Collection", "")]
+public class Collection : IDataObject, IIndexedData
 {
-    [D2OClass("Collection", "")]
-    public class Collection : IDataObject, IIndexedData
+    public const string MODULE = "Collections";
+
+    public int Id => throw new NotImplementedException();
+
+    public int typeId;
+    public int name;
+    public string criterion;
+    public List<Collectable> collectables;
+
+    [D2OIgnore]
+    public int TypeId
     {
-        public const string MODULE = "Collections";
-
-        public int Id => throw new NotImplementedException();
-
-        public int typeId;
-        public int name;
-        public string criterion;
-        public List<Collectable> collectables;
-
-        [D2OIgnore]
-        public int TypeId
+        get
         {
-            get
-            {
-                return typeId;
-            }
-            set
-            {
-                typeId = value;
-            }
+            return typeId;
         }
-        [D2OIgnore]
-        public int Name
+        set
         {
-            get
-            {
-                return name;
-            }
-            set
-            {
-                name = value;
-            }
+            typeId = value;
         }
-        [D2OIgnore]
-        public string Criterion
-        {
-            get
-            {
-                return criterion;
-            }
-            set
-            {
-                criterion = value;
-            }
-        }
-        [D2OIgnore]
-        public List<Collectable> Collectables
-        {
-            get
-            {
-                return collectables;
-            }
-            set
-            {
-                collectables = value;
-            }
-        }
-
     }
-}
+    [D2OIgnore]
+    public int Name
+    {
+        get
+        {
+            return name;
+        }
+        set
+        {
+            name = value;
+        }
+    }
+    [D2OIgnore]
+    public string Criterion
+    {
+        get
+        {
+            return criterion;
+        }
+        set
+        {
+            criterion = value;
+        }
+    }
+    [D2OIgnore]
+    public List<Collectable> Collectables
+    {
+        get
+        {
+            return collectables;
+        }
+        set
+        {
+            collectables = value;
+        }
+    }
 
+}

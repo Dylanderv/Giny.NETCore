@@ -1,71 +1,66 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("SocialTag", "")]
+public class SocialTag : IDataObject, IIndexedData
 {
-    [D2OClass("SocialTag", "")]
-    public class SocialTag : IDataObject, IIndexedData
+
+    public int Id => (int)id;
+
+    public int id;
+    public int typeId;
+    public uint nameId;
+    public int order;
+
+    [D2OIgnore]
+    public int Id_
     {
-
-        public int Id => (int)id;
-
-        public int id;
-        public int typeId;
-        public uint nameId;
-        public int order;
-
-        [D2OIgnore]
-        public int Id_
+        get
         {
-            get
-            {
-                return id;
-            }
-            set
-            {
-                id = value;
-            }
+            return id;
         }
-        [D2OIgnore]
-        public int TypeId
+        set
         {
-            get
-            {
-                return typeId;
-            }
-            set
-            {
-                typeId = value;
-            }
+            id = value;
         }
-        [D2OIgnore]
-        public uint NameId
-        {
-            get
-            {
-                return nameId;
-            }
-            set
-            {
-                nameId = value;
-            }
-        }
-        [D2OIgnore]
-        public int Order
-        {
-            get
-            {
-                return order;
-            }
-            set
-            {
-                order = value;
-            }
-        }
-
     }
-}
+    [D2OIgnore]
+    public int TypeId
+    {
+        get
+        {
+            return typeId;
+        }
+        set
+        {
+            typeId = value;
+        }
+    }
+    [D2OIgnore]
+    public uint NameId
+    {
+        get
+        {
+            return nameId;
+        }
+        set
+        {
+            nameId = value;
+        }
+    }
+    [D2OIgnore]
+    public int Order
+    {
+        get
+        {
+            return order;
+        }
+        set
+        {
+            order = value;
+        }
+    }
 
+}

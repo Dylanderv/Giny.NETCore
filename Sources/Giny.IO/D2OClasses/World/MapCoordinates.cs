@@ -1,46 +1,41 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("MapCoordinates", "")]
+public class MapCoordinates : IDataObject, IIndexedData
 {
-    [D2OClass("MapCoordinates", "")]
-    public class MapCoordinates : IDataObject, IIndexedData
+    public const string MODULE = "MapCoordinates";
+
+    public int Id => throw new NotImplementedException();
+
+    public uint compressedCoords;
+    public List<double> mapIds;
+
+    [D2OIgnore]
+    public uint CompressedCoords
     {
-        public const string MODULE = "MapCoordinates";
-
-        public int Id => throw new NotImplementedException();
-
-        public uint compressedCoords;
-        public List<double> mapIds;
-
-        [D2OIgnore]
-        public uint CompressedCoords
+        get
         {
-            get
-            {
-                return compressedCoords;
-            }
-            set
-            {
-                compressedCoords = value;
-            }
+            return compressedCoords;
         }
-        [D2OIgnore]
-        public List<double> MapIds
+        set
         {
-            get
-            {
-                return mapIds;
-            }
-            set
-            {
-                mapIds = value;
-            }
+            compressedCoords = value;
         }
-
     }
-}
+    [D2OIgnore]
+    public List<double> MapIds
+    {
+        get
+        {
+            return mapIds;
+        }
+        set
+        {
+            mapIds = value;
+        }
+    }
 
+}

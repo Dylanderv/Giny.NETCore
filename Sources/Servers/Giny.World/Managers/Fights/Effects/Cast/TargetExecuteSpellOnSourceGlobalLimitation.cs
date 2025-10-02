@@ -2,43 +2,37 @@
 using Giny.World.Managers.Effects;
 using Giny.World.Managers.Fights.Cast;
 using Giny.World.Managers.Fights.Fighters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Managers.Fights.Effects.Cast
+namespace Giny.World.Managers.Fights.Effects.Cast;
+
+/*
+ * Étreinte de Servitude , sort : Fers de la Tyrannie
+ */
+[SpellEffectHandler(EffectsEnum.Effect_TargetExecuteSpellOnSourceGlobalLimitation)]
+public class TargetExecuteSpellOnSourceGlobalLimitation : SpellEffectHandler
 {
-    /*
-     * Étreinte de Servitude , sort : Fers de la Tyrannie
-     */
-    [SpellEffectHandler(EffectsEnum.Effect_TargetExecuteSpellOnSourceGlobalLimitation)]
-    public class TargetExecuteSpellOnSourceGlobalLimitation : SpellEffectHandler
+    public TargetExecuteSpellOnSourceGlobalLimitation(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
     {
-        public TargetExecuteSpellOnSourceGlobalLimitation(EffectDice effect, SpellCastHandler castHandler) : base(effect, castHandler)
-        {
 
+    }
+
+    protected override void Apply(IEnumerable<Fighter> targets)
+    {
+        Spell spell = CreateCastedSpell();
+
+        if (spell == null)
+        {
+            return;
         }
 
-        protected override void Apply(IEnumerable<Fighter> targets)
+        foreach (var target in targets)
         {
-            Spell spell = CreateCastedSpell();
-
-            if (spell == null)
-            {
-                return;
-            }
-
-            foreach (var target in targets)
-            {
-                SpellCast cast = new SpellCast(target, spell, Source.Cell, CastHandler.Cast); // target or Source ?
-                cast.Token = this.GetTriggerToken<ITriggerToken>();
-                cast.Force = true;
-                cast.Silent = true;
-                target.CastSpell(cast);
-            }
-
+            SpellCast cast = new SpellCast(target, spell, Source.Cell, CastHandler.Cast); // target or Source ?
+            cast.Token = this.GetTriggerToken<ITriggerToken>();
+            cast.Force = true;
+            cast.Silent = true;
+            target.CastSpell(cast);
         }
+
     }
 }

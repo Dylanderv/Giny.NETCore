@@ -1,69 +1,62 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class GameFightRemoveTeamMemberMessage : NetworkMessage
 {
-    public class GameFightRemoveTeamMemberMessage : NetworkMessage
+    public const ushort Id = 2527;
+    public override ushort MessageId => Id;
+
+    public short fightId;
+    public byte teamId;
+    public double charId;
+
+    public GameFightRemoveTeamMemberMessage()
     {
-        public const ushort Id = 2527;
-        public override ushort MessageId => Id;
-
-        public short fightId;
-        public byte teamId;
-        public double charId;
-
-        public GameFightRemoveTeamMemberMessage()
+    }
+    public GameFightRemoveTeamMemberMessage(short fightId, byte teamId, double charId)
+    {
+        this.fightId = fightId;
+        this.teamId = teamId;
+        this.charId = charId;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (fightId < 0)
         {
+            throw new System.Exception("Forbidden value (" + fightId + ") on element fightId.");
         }
-        public GameFightRemoveTeamMemberMessage(short fightId, byte teamId, double charId)
+
+        writer.WriteVarShort((short)fightId);
+        writer.WriteByte((byte)teamId);
+        if (charId < -9007199254740992 || charId > 9007199254740992)
         {
-            this.fightId = fightId;
-            this.teamId = teamId;
-            this.charId = charId;
+            throw new System.Exception("Forbidden value (" + charId + ") on element charId.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteDouble((double)charId);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        fightId = (short)reader.ReadVarUhShort();
+        if (fightId < 0)
         {
-            if (fightId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + fightId + ") on element fightId.");
-            }
-
-            writer.WriteVarShort((short)fightId);
-            writer.WriteByte((byte)teamId);
-            if (charId < -9007199254740992 || charId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + charId + ") on element charId.");
-            }
-
-            writer.WriteDouble((double)charId);
+            throw new System.Exception("Forbidden value (" + fightId + ") on element of GameFightRemoveTeamMemberMessage.fightId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        teamId = (byte)reader.ReadByte();
+        if (teamId < 0)
         {
-            fightId = (short)reader.ReadVarUhShort();
-            if (fightId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + fightId + ") on element of GameFightRemoveTeamMemberMessage.fightId.");
-            }
+            throw new System.Exception("Forbidden value (" + teamId + ") on element of GameFightRemoveTeamMemberMessage.teamId.");
+        }
 
-            teamId = (byte)reader.ReadByte();
-            if (teamId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + teamId + ") on element of GameFightRemoveTeamMemberMessage.teamId.");
-            }
-
-            charId = (double)reader.ReadDouble();
-            if (charId < -9007199254740992 || charId > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + charId + ") on element of GameFightRemoveTeamMemberMessage.charId.");
-            }
-
+        charId = (double)reader.ReadDouble();
+        if (charId < -9007199254740992 || charId > 9007199254740992)
+        {
+            throw new System.Exception("Forbidden value (" + charId + ") on element of GameFightRemoveTeamMemberMessage.charId.");
         }
 
     }
+
 }
-
-

@@ -1,76 +1,70 @@
 ﻿using Giny.Core.DesignPattern;
 using Giny.Protocol.Types;
 using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Records.Guilds
+namespace Giny.World.Records.Guilds;
+
+[ProtoContract]
+public class GuildEmblemRecord
 {
-    [ProtoContract]
-    public class GuildEmblemRecord
+    [ProtoMember(1)]
+    public short SymbolShape
     {
-        [ProtoMember(1)]
-        public short SymbolShape
+        get;
+        set;
+    }
+    [ProtoMember(2)]
+    public int SymbolColor
+    {
+        get;
+        set;
+    }
+    [ProtoMember(3)]
+    public byte BackgroundShape
+    {
+        get;
+        set;
+    }
+    [ProtoMember(4)]
+    public int BackgroundColor
+    {
+        get;
+        set;
+    }
+
+    public GuildEmblemRecord()
+    {
+
+    }
+    public GuildEmblemRecord(short symbolShape, int symbolColor, byte backgroundShape, int backgroundColor)
+    {
+        this.SymbolShape = symbolShape;
+        this.SymbolColor = symbolColor;
+        this.BackgroundShape = backgroundShape;
+        this.BackgroundColor = backgroundColor;
+    }
+
+    public SocialEmblem ToSocialEmblem()
+    {
+        return new SocialEmblem()
         {
-            get;
-            set;
-        }
-        [ProtoMember(2)]
-        public int SymbolColor
+            backgroundColor = BackgroundColor,
+            backgroundShape = BackgroundShape,
+            symbolColor = SymbolColor,
+            symbolShape = SymbolShape,
+        };
+    }
+
+    [Annotation("override operators.")]
+    public override bool Equals(object obj)
+    {
+        GuildEmblemRecord emblem = obj as GuildEmblemRecord;
+
+        if (emblem == null)
         {
-            get;
-            set;
-        }
-        [ProtoMember(3)]
-        public byte BackgroundShape
-        {
-            get;
-            set;
-        }
-        [ProtoMember(4)]
-        public int BackgroundColor
-        {
-            get;
-            set;
+            return false;
         }
 
-        public GuildEmblemRecord()
-        {
-
-        }
-        public GuildEmblemRecord(short symbolShape, int symbolColor, byte backgroundShape, int backgroundColor)
-        {
-            this.SymbolShape = symbolShape;
-            this.SymbolColor = symbolColor;
-            this.BackgroundShape = backgroundShape;
-            this.BackgroundColor = backgroundColor;
-        }
-
-        public SocialEmblem ToSocialEmblem()
-        {
-            return new SocialEmblem()
-            {
-                backgroundColor = BackgroundColor,
-                backgroundShape = BackgroundShape,
-                symbolColor = SymbolColor,
-                symbolShape = SymbolShape,
-            };
-        }
-
-        [Annotation("override operators.")]
-        public override bool Equals(object obj)
-        {
-            GuildEmblemRecord emblem = obj as GuildEmblemRecord;
-
-            if (emblem == null)
-            {
-                return false;
-            }
-
-            return SymbolShape == emblem.SymbolShape && SymbolColor == emblem.SymbolColor && BackgroundShape == emblem.BackgroundShape && BackgroundColor == emblem.BackgroundColor;
-        }
+        return SymbolShape == emblem.SymbolShape && SymbolColor == emblem.SymbolColor && BackgroundShape == emblem.BackgroundShape && BackgroundColor == emblem.BackgroundColor;
     }
 }

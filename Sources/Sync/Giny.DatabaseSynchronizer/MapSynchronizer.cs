@@ -2,163 +2,153 @@
 using Giny.IO.DLM.Elements;
 using Giny.Core;
 using Giny.IO.D2P;
-using Giny.IO.DLM;
 using Giny.IO.ELE;
 using Giny.IO.ELE.Repertory;
 using Giny.ORM;
-using Giny.World.Records;
 using Giny.World.Records.Maps;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Giny.IO.D2O;
 using Giny.IO.D2OClasses;
 using Giny.IO;
 using Giny.Core.Logging;
 
-namespace Giny.DatabaseSynchronizer
+namespace Giny.DatabaseSynchronizer;
+
+class MapSynchronizer
 {
-    class MapSynchronizer
+    static Dictionary<int, EleGraphicalData> Elements;
+
+    private static Dictionary<long, MapPosition> MapPositions;
+
+    private static void LoadD2PFile(string filePath)
     {
-        static Dictionary<int, EleGraphicalData> Elements;
+        Logger.Write("Loading Maps...");
 
-        private static Dictionary<long, MapPosition> MapPositions;
+        D2PFile file = new D2PFile(filePath);
 
-        private static void LoadD2PFile(string filePath)
+        var entries = file.ReadAllEntries();
+
+        var current = 0;
+
+        ProgressLogger logger = new ProgressLogger();
+
+
+        foreach (var entry in entries)
         {
-            Logger.Write("Loading Maps...");
+            current++;
+            DlmMap map = new DlmMap(entry.Value);
 
-            D2PFile file = new D2PFile(filePath);
+            if (map.Cells == null)
+                continue;
 
-            var entries = file.ReadAllEntries();
-
-            var current = 0;
-
-            ProgressLogger logger = new ProgressLogger();
-
-
-            foreach (var entry in entries)
+            if (!MapPositions.ContainsKey(map.Id))
             {
-                current++;
-                DlmMap map = new DlmMap(entry.Value);
+                Logger.Write("Map " + map.Id + " has no Map Position in D2O files. Skipping", Channels.Warning);
+                continue;
+            }
+            MapRecord record = new MapRecord();
 
-                if (map.Cells == null)
-                    continue;
+            record.Version = map.MapVersion;
+            record.Id = map.Id;
+            record.SubareaId = map.SubareaId;
+            record.RightMap = map.RightNeighbourId;
+            record.LeftMap = map.LeftNeighbourId;
+            record.TopMap = map.TopNeighbourId;
+            record.BottomMap = map.BottomNeighbourId;
+            record.Cells = new CellRecord[560];
 
-                if (!MapPositions.ContainsKey(map.Id))
+            for (short i = 0; i < record.Cells.Length; i++)
+            {
+                var cell = map.Cells[i];
+
+                record.Cells[i] = new CellRecord()
                 {
-                    Logger.Write("Map " + map.Id + " has no Map Position in D2O files. Skipping", Channels.Warning);
-                    continue;
-                }
-                MapRecord record = new MapRecord();
+                    Blue = cell.Blue,
+                    Red = cell.Red,
+                    Id = i,
+                    LosMov = cell.Losmov,
+                    MapChangeData = cell.MapChangeData,
+                };
+            }
 
-                record.Version = map.MapVersion;
-                record.Id = map.Id;
-                record.SubareaId = map.SubareaId;
-                record.RightMap = map.RightNeighbourId;
-                record.LeftMap = map.LeftNeighbourId;
-                record.TopMap = map.TopNeighbourId;
-                record.BottomMap = map.BottomNeighbourId;
-                record.Cells = new CellRecord[560];
+            var layers = map.Layers;
 
-                for (short i = 0; i < record.Cells.Length; i++)
+            List<InteractiveElementRecord> elements = new List<InteractiveElementRecord>();
+
+            foreach (var layer in layers)
+            {
+                foreach (DlmCell layerCell in layer.Cells)
                 {
-                    var cell = map.Cells[i];
-
-                    record.Cells[i] = new CellRecord()
+                    foreach (var graphicalElement in layerCell.Elements.OfType<GraphicalElement>())
                     {
-                        Blue = cell.Blue,
-                        Red = cell.Red,
-                        Id = i,
-                        LosMov = cell.Losmov,
-                        MapChangeData = cell.MapChangeData,
-                    };
-                }
-
-                var layers = map.Layers;
-
-                List<InteractiveElementRecord> elements = new List<InteractiveElementRecord>();
-
-                foreach (var layer in layers)
-                {
-                    foreach (DlmCell layerCell in layer.Cells)
-                    {
-                        foreach (var graphicalElement in layerCell.Elements.OfType<GraphicalElement>())
+                        if (graphicalElement.Identifier != 0)
                         {
-                            if (graphicalElement.Identifier != 0)
+                            InteractiveElementRecord interactiveRecord = new InteractiveElementRecord();
+
+                            if (!Elements.ContainsKey((int)graphicalElement.ElementId))
                             {
-                                InteractiveElementRecord interactiveRecord = new InteractiveElementRecord();
+                                Logger.Write("Unknown element id " + graphicalElement.ElementId, Channels.Warning);
+                                continue;
+                            }
 
-                                if (!Elements.ContainsKey((int)graphicalElement.ElementId))
-                                {
-                                    Logger.Write("Unknown element id " + graphicalElement.ElementId, Channels.Warning);
-                                    continue;
-                                }
+                            var gfxElement = Elements[(int)graphicalElement.ElementId];
 
-                                var gfxElement = Elements[(int)graphicalElement.ElementId];
-
-                                interactiveRecord.OffsetX = graphicalElement.OffsetX;
-                                interactiveRecord.OffsetY = graphicalElement.OffsetY;
-                                interactiveRecord.Identifier = (int)graphicalElement.Identifier;
-                                interactiveRecord.CellId = layerCell.CellId;
+                            interactiveRecord.OffsetX = graphicalElement.OffsetX;
+                            interactiveRecord.OffsetY = graphicalElement.OffsetY;
+                            interactiveRecord.Identifier = (int)graphicalElement.Identifier;
+                            interactiveRecord.CellId = layerCell.CellId;
 
 
-                                if (gfxElement.Type != EleGraphicalElementTypes.ENTITY)
-                                {
-                                    NormalGraphicalElementData normalElement = gfxElement as NormalGraphicalElementData;
+                            if (gfxElement.Type != EleGraphicalElementTypes.ENTITY)
+                            {
+                                NormalGraphicalElementData normalElement = gfxElement as NormalGraphicalElementData;
 
-                                    if (normalElement != null)
-                                        interactiveRecord.GfxId = normalElement.Gfx;
+                                if (normalElement != null)
+                                    interactiveRecord.GfxId = normalElement.Gfx;
 
-                                    interactiveRecord.BonesId = -1;
-
-                                }
-                                else
-                                {
-                                    EntityGraphicalElementData entityElement = gfxElement as EntityGraphicalElementData;
-
-                                    interactiveRecord.BonesId = ushort.Parse(entityElement.EntityLook.Replace("{", "").Replace("}", ""));
-                                    interactiveRecord.GfxId = -1;
-
-                                }
-                                elements.Add(interactiveRecord);
-
+                                interactiveRecord.BonesId = -1;
 
                             }
+                            else
+                            {
+                                EntityGraphicalElementData entityElement = gfxElement as EntityGraphicalElementData;
+
+                                interactiveRecord.BonesId = ushort.Parse(entityElement.EntityLook.Replace("{", "").Replace("}", ""));
+                                interactiveRecord.GfxId = -1;
+
+                            }
+                            elements.Add(interactiveRecord);
+
+
                         }
                     }
                 }
-                record.Elements = elements.ToArray();
-                record.AddNow();
-
-                logger.WriteProgressBar(current, entries.Count);
             }
-            logger.Flush();
+            record.Elements = elements.ToArray();
+            record.AddNow();
+
+            logger.WriteProgressBar(current, entries.Count);
         }
-
-        public static void Synchronize()
-        {
-
-            if (!Program.SYNC_MAPS)
-            {
-                return;
-            }
-
-            MapPositions = D2OSynchronizer.d2oReaders.FirstOrDefault(x => x.Classes.Any(w => w.Value.Name == "MapPosition")).
-                     EnumerateObjects().Cast<MapPosition>().ToDictionary(x => (long)x.id, x => x);
-
-            Logger.Write("Building Maps...", Channels.Info);
-
-
-            var elementPath = Path.Combine(ClientConstants.ClientPath, ClientConstants.ElementsPath);
-            Elements = EleReader.ReadElements(elementPath);
-
-            var mapsPath = Path.Combine(ClientConstants.ClientPath, ClientConstants.Maps0Path);
-            LoadD2PFile(mapsPath);
-        }
-
+        logger.Flush();
     }
+
+    public static void Synchronize()
+    {
+
+        if (!Program.SYNC_MAPS)
+        {
+            return;
+        }
+
+        MapPositions = D2OSynchronizer.d2oReaders.FirstOrDefault(x => x.Classes.Any(w => w.Value.Name == "MapPosition")).
+            EnumerateObjects().Cast<MapPosition>().ToDictionary(x => (long)x.id, x => x);
+
+        Logger.Write("Building Maps...", Channels.Info);
+
+
+        var elementPath = Path.Combine(ClientConstants.ClientPath, ClientConstants.ElementsPath);
+        Elements = EleReader.ReadElements(elementPath);
+
+        var mapsPath = Path.Combine(ClientConstants.ClientPath, ClientConstants.Maps0Path);
+        LoadD2PFile(mapsPath);
+    }
+
 }

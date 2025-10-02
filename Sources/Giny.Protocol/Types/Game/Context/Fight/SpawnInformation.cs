@@ -1,28 +1,22 @@
-using System.Collections.Generic;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Types
+namespace Giny.Protocol.Types;
+
+public class SpawnInformation
 {
-    public class SpawnInformation
+    public const ushort Id = 5624;
+    public virtual ushort TypeId => Id;
+
+
+    public SpawnInformation()
     {
-        public const ushort Id = 5624;
-        public virtual ushort TypeId => Id;
-
-
-        public SpawnInformation()
-        {
-        }
-        public virtual void Serialize(IDataWriter writer)
-        {
-        }
-        public virtual void Deserialize(IDataReader reader)
-        {
-        }
-
-
     }
+    public virtual void Serialize(IDataWriter writer)
+    {
+    }
+    public virtual void Deserialize(IDataReader reader)
+    {
+    }
+
+
 }
-
-

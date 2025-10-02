@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Giny.World.Modules;
 
-namespace Giny.World.Modules
+public interface IModule 
 {
-    public interface IModule 
-    {
-        void Initialize();
+    void Initialize();
 
-        void CreateHooks();
-    }
+    void CreateHooks();
 }

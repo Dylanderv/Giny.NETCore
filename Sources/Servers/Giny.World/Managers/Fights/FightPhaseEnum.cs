@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Giny.World.Managers.Fights;
 
-namespace Giny.World.Managers.Fights
+public enum FightPhaseEnum
 {
-    public enum FightPhaseEnum
-    {
-        Unknown,
-        PrePlacement,
-        Placement,
-        Started,
-        StartedAck,
-        Ended,
-    }
+    Unknown,
+    PrePlacement,
+    Placement,
+    Started,
+    StartedAck,
+    Ended,
 }

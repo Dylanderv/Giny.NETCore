@@ -1,45 +1,40 @@
-using System;
 using Giny.Core.IO.Interfaces;
 using Giny.IO.D2O;
-using Giny.IO.D2OTypes;
-using System.Collections.Generic;
 
-namespace Giny.IO.D2OClasses
+namespace Giny.IO.D2OClasses;
+
+[D2OClass("EffectInstanceMinMax", "")]
+public class EffectInstanceMinMax : EffectInstance, IIndexedData
 {
-    [D2OClass("EffectInstanceMinMax", "")]
-    public class EffectInstanceMinMax : EffectInstance, IIndexedData
+
+    public int Id => throw new NotImplementedException();
+
+    public uint min;
+    public uint max;
+
+    [D2OIgnore]
+    public uint Min
     {
-
-        public int Id => throw new NotImplementedException();
-
-        public uint min;
-        public uint max;
-
-        [D2OIgnore]
-        public uint Min
+        get
         {
-            get
-            {
-                return min;
-            }
-            set
-            {
-                min = value;
-            }
+            return min;
         }
-        [D2OIgnore]
-        public uint Max
+        set
         {
-            get
-            {
-                return max;
-            }
-            set
-            {
-                max = value;
-            }
+            min = value;
         }
-
     }
-}
+    [D2OIgnore]
+    public uint Max
+    {
+        get
+        {
+            return max;
+        }
+        set
+        {
+            max = value;
+        }
+    }
 
+}

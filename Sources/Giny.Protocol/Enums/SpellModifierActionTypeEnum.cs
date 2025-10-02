@@ -1,14 +1,10 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum SpellModifierActionTypeEnum
 {
-    public enum SpellModifierActionTypeEnum
-    {
-        ACTION_INVALID = 0,
-        ACTION_BOOST = 1,
-        ACTION_DEBOOST = 2,
-        ACTION_SET = 3,
+    ACTION_INVALID = 0,
+    ACTION_BOOST = 1,
+    ACTION_DEBOOST = 2,
+    ACTION_SET = 3,
 
-    }
 }
-

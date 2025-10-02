@@ -1,13 +1,9 @@
-using System;
+namespace Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Enums
+public enum GameActionFightInvisibilityStateEnum
 {
-    public enum GameActionFightInvisibilityStateEnum
-    {
-        INVISIBLE = 1,
-        DETECTED = 2,
-        VISIBLE = 3,
+    INVISIBLE = 1,
+    DETECTED = 2,
+    VISIBLE = 3,
 
-    }
 }
-

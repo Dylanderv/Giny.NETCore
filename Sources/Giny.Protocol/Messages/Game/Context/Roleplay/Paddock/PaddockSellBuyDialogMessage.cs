@@ -1,64 +1,57 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class PaddockSellBuyDialogMessage : NetworkMessage
 {
-    public class PaddockSellBuyDialogMessage : NetworkMessage
+    public const ushort Id = 7797;
+    public override ushort MessageId => Id;
+
+    public bool bsell;
+    public int ownerId;
+    public long price;
+
+    public PaddockSellBuyDialogMessage()
     {
-        public const ushort Id = 7797;
-        public override ushort MessageId => Id;
-
-        public bool bsell;
-        public int ownerId;
-        public long price;
-
-        public PaddockSellBuyDialogMessage()
+    }
+    public PaddockSellBuyDialogMessage(bool bsell, int ownerId, long price)
+    {
+        this.bsell = bsell;
+        this.ownerId = ownerId;
+        this.price = price;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        writer.WriteBoolean((bool)bsell);
+        if (ownerId < 0)
         {
+            throw new System.Exception("Forbidden value (" + ownerId + ") on element ownerId.");
         }
-        public PaddockSellBuyDialogMessage(bool bsell, int ownerId, long price)
+
+        writer.WriteVarInt((int)ownerId);
+        if (price < 0 || price > 9007199254740992)
         {
-            this.bsell = bsell;
-            this.ownerId = ownerId;
-            this.price = price;
+            throw new System.Exception("Forbidden value (" + price + ") on element price.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarLong((long)price);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        bsell = (bool)reader.ReadBoolean();
+        ownerId = (int)reader.ReadVarUhInt();
+        if (ownerId < 0)
         {
-            writer.WriteBoolean((bool)bsell);
-            if (ownerId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + ownerId + ") on element ownerId.");
-            }
-
-            writer.WriteVarInt((int)ownerId);
-            if (price < 0 || price > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + price + ") on element price.");
-            }
-
-            writer.WriteVarLong((long)price);
+            throw new System.Exception("Forbidden value (" + ownerId + ") on element of PaddockSellBuyDialogMessage.ownerId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        price = (long)reader.ReadVarUhLong();
+        if (price < 0 || price > 9007199254740992)
         {
-            bsell = (bool)reader.ReadBoolean();
-            ownerId = (int)reader.ReadVarUhInt();
-            if (ownerId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + ownerId + ") on element of PaddockSellBuyDialogMessage.ownerId.");
-            }
-
-            price = (long)reader.ReadVarUhLong();
-            if (price < 0 || price > 9007199254740992)
-            {
-                throw new System.Exception("Forbidden value (" + price + ") on element of PaddockSellBuyDialogMessage.price.");
-            }
-
+            throw new System.Exception("Forbidden value (" + price + ") on element of PaddockSellBuyDialogMessage.price.");
         }
 
     }
+
 }
-
-

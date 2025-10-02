@@ -1,60 +1,53 @@
-using System.Collections.Generic;
 using Giny.Core.Network.Messages;
-using Giny.Protocol.Types;
 using Giny.Core.IO.Interfaces;
-using Giny.Protocol;
-using Giny.Protocol.Enums;
 
-namespace Giny.Protocol.Messages
+namespace Giny.Protocol.Messages;
+
+public class ObtainedItemMessage : NetworkMessage
 {
-    public class ObtainedItemMessage : NetworkMessage
+    public const ushort Id = 5780;
+    public override ushort MessageId => Id;
+
+    public int genericId;
+    public int baseQuantity;
+
+    public ObtainedItemMessage()
     {
-        public const ushort Id = 5780;
-        public override ushort MessageId => Id;
-
-        public int genericId;
-        public int baseQuantity;
-
-        public ObtainedItemMessage()
+    }
+    public ObtainedItemMessage(int genericId, int baseQuantity)
+    {
+        this.genericId = genericId;
+        this.baseQuantity = baseQuantity;
+    }
+    public override void Serialize(IDataWriter writer)
+    {
+        if (genericId < 0)
         {
+            throw new System.Exception("Forbidden value (" + genericId + ") on element genericId.");
         }
-        public ObtainedItemMessage(int genericId, int baseQuantity)
+
+        writer.WriteVarInt((int)genericId);
+        if (baseQuantity < 0)
         {
-            this.genericId = genericId;
-            this.baseQuantity = baseQuantity;
+            throw new System.Exception("Forbidden value (" + baseQuantity + ") on element baseQuantity.");
         }
-        public override void Serialize(IDataWriter writer)
+
+        writer.WriteVarInt((int)baseQuantity);
+    }
+    public override void Deserialize(IDataReader reader)
+    {
+        genericId = (int)reader.ReadVarUhInt();
+        if (genericId < 0)
         {
-            if (genericId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + genericId + ") on element genericId.");
-            }
-
-            writer.WriteVarInt((int)genericId);
-            if (baseQuantity < 0)
-            {
-                throw new System.Exception("Forbidden value (" + baseQuantity + ") on element baseQuantity.");
-            }
-
-            writer.WriteVarInt((int)baseQuantity);
+            throw new System.Exception("Forbidden value (" + genericId + ") on element of ObtainedItemMessage.genericId.");
         }
-        public override void Deserialize(IDataReader reader)
+
+        baseQuantity = (int)reader.ReadVarUhInt();
+        if (baseQuantity < 0)
         {
-            genericId = (int)reader.ReadVarUhInt();
-            if (genericId < 0)
-            {
-                throw new System.Exception("Forbidden value (" + genericId + ") on element of ObtainedItemMessage.genericId.");
-            }
-
-            baseQuantity = (int)reader.ReadVarUhInt();
-            if (baseQuantity < 0)
-            {
-                throw new System.Exception("Forbidden value (" + baseQuantity + ") on element of ObtainedItemMessage.baseQuantity.");
-            }
-
+            throw new System.Exception("Forbidden value (" + baseQuantity + ") on element of ObtainedItemMessage.baseQuantity.");
         }
 
     }
+
 }
-
-

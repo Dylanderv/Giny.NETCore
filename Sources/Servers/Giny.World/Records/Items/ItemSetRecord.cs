@@ -3,80 +3,74 @@ using Giny.IO.D2O;
 using Giny.ORM.Attributes;
 using Giny.ORM.Interfaces;
 using Giny.World.Managers.Effects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Records.Items
+namespace Giny.World.Records.Items;
+
+[D2OClass("ItemSet")]
+[Table("item_sets")]
+public class ItemSetRecord : IRecord
 {
-    [D2OClass("ItemSet")]
-    [Table("item_sets")]
-    public class ItemSetRecord : IRecord
+    [Container]
+    private static Dictionary<long, ItemSetRecord> ItemSets = new Dictionary<long, ItemSetRecord>();
+
+    [Primary]
+    [D2OField("id")]
+    public long Id
     {
-        [Container]
-        private static Dictionary<long, ItemSetRecord> ItemSets = new Dictionary<long, ItemSetRecord>();
+        get;
+        set;
+    }
 
-        [Primary]
-        [D2OField("id")]
-        public long Id
-        {
-            get;
-            set;
-        }
+    [I18NField]
+    [D2OField("nameId")]
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        [I18NField]
-        [D2OField("nameId")]
-        public string Name
-        {
-            get;
-            set;
-        }
+    [Blob]
+    [D2OField("items")]
+    public List<int> Items
+    {
+        get;
+        set;
+    }
 
-        [Blob]
-        [D2OField("items")]
-        public List<int> Items
-        {
-            get;
-            set;
-        }
+    [Blob]
+    [D2OField("effects")]
+    public List<EffectCollection> Effects
+    {
+        get;
+        set;
+    }
 
-        [Blob]
-        [D2OField("effects")]
-        public List<EffectCollection> Effects
+    [StartupInvoke("Item sets", StartupInvokePriority.SixthPath)]
+    public static void Initialize()
+    {
+        foreach (ItemSetRecord itemSet in ItemSets.Values)
         {
-            get;
-            set;
-        }
-
-        [StartupInvoke("Item sets", StartupInvokePriority.SixthPath)]
-        public static void Initialize()
-        {
-            foreach (ItemSetRecord itemSet in ItemSets.Values)
+            for (int i = 0; i < itemSet.Effects.Count; i++)
             {
-                for (int i = 0; i < itemSet.Effects.Count; i++)
-                {
-                    itemSet.Effects[i] = itemSet.Effects[i].Generate();
-                }
+                itemSet.Effects[i] = itemSet.Effects[i].Generate();
             }
         }
-
-        public EffectCollection GetEffects(int itemCount)
-        {
-            if (Effects.Count >= itemCount)
-                return Effects[itemCount - 1];
-            else
-                return new EffectCollection();
-        }
-
-        public static ItemSetRecord GetItemSet(int itemSetId)
-        {
-            ItemSetRecord result;
-            ItemSets.TryGetValue(itemSetId, out result);
-            return result;
-        }
-
-
     }
+
+    public EffectCollection GetEffects(int itemCount)
+    {
+        if (Effects.Count >= itemCount)
+            return Effects[itemCount - 1];
+        else
+            return new EffectCollection();
+    }
+
+    public static ItemSetRecord GetItemSet(int itemSetId)
+    {
+        ItemSetRecord result;
+        ItemSets.TryGetValue(itemSetId, out result);
+        return result;
+    }
+
+
 }

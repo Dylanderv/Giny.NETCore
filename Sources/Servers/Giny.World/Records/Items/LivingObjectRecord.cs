@@ -3,96 +3,89 @@ using Giny.IO.D2O;
 using Giny.ORM.Attributes;
 using Giny.ORM.Interfaces;
 using Giny.Protocol.Custom.Enums;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Giny.World.Records.Items
+namespace Giny.World.Records.Items;
+
+[D2OClass("LivingObjectSkinJntMood")]
+[Table("living_objects")]
+public class LivingObjectRecord : IRecord
 {
-    [D2OClass("LivingObjectSkinJntMood")]
-    [Table("living_objects")]
-    public class LivingObjectRecord : IRecord
+    [Container]
+    private static readonly Dictionary<long, LivingObjectRecord> LivingObjects = new Dictionary<long, LivingObjectRecord>();
+
+    [Primary]
+    [D2OField("skinId")]
+    public long Id
     {
-        [Container]
-        private static readonly Dictionary<long, LivingObjectRecord> LivingObjects = new Dictionary<long, LivingObjectRecord>();
+        get;
+        set;
+    }
+    [Update]
+    public ItemTypeEnum Type
+    {
+        get;
+        set;
+    }
+    [Update]
+    public List<short> SkinIds
+    {
+        get;
+        set;
+    }
+    [Update]
+    public short MaximumLevel
+    {
+        get;
+        set;
+    }
+    [Ignore]
+    public short MaximumExp
+    {
+        get;
+        set;
+    }
+    [Ignore]
+    public bool Skinnable
+    {
+        get
+        {
+            return SkinIds.Count > 0;
+        }
+    }
 
-        [Primary]
-        [D2OField("skinId")]
-        public long Id
+    [StartupInvoke(StartupInvokePriority.SixthPath)]
+    public static void Initialize()
+    {
+        foreach (var livingObjectRecord in LivingObjects)
         {
-            get;
-            set;
+            livingObjectRecord.Value.MaximumExp = CalculateMaximumExp(livingObjectRecord.Value.MaximumLevel);
         }
-        [Update]
-        public ItemTypeEnum Type
+    }
+    private static short CalculateMaximumExp(short maximumLevel)
+    {
+        short result = 0;
+        for (int i = 0; i < maximumLevel - 1; i++)
         {
-            get;
-            set;
+            result += (short)(10 + i);
         }
-        [Update]
-        public List<short> SkinIds
-        {
-            get;
-            set;
-        }
-        [Update]
-        public short MaximumLevel
-        {
-            get;
-            set;
-        }
-        [Ignore]
-        public short MaximumExp
-        {
-            get;
-            set;
-        }
-        [Ignore]
-        public bool Skinnable
-        {
-            get
-            {
-                return SkinIds.Count > 0;
-            }
-        }
+        return result;
+    }
+    public short GetSkin(int skinIndex)
+    {
+        return SkinIds[skinIndex - 1];
+    }
+    public static LivingObjectRecord GetLivingObjectRecord(int id)
+    {
+        return LivingObjects[id];
+    }
 
-        [StartupInvoke(StartupInvokePriority.SixthPath)]
-        public static void Initialize()
-        {
-            foreach (var livingObjectRecord in LivingObjects)
-            {
-                livingObjectRecord.Value.MaximumExp = CalculateMaximumExp(livingObjectRecord.Value.MaximumLevel);
-            }
-        }
-        private static short CalculateMaximumExp(short maximumLevel)
-        {
-            short result = 0;
-            for (int i = 0; i < maximumLevel - 1; i++)
-            {
-                result += (short)(10 + i);
-            }
-            return result;
-        }
-        public short GetSkin(int skinIndex)
-        {
-            return SkinIds[skinIndex - 1];
-        }
-        public static LivingObjectRecord GetLivingObjectRecord(int id)
-        {
-            return LivingObjects[id];
-        }
+    public static bool IsLivingObject(int gid)
+    {
+        return LivingObjects.ContainsKey(gid);
+    }
 
-        public static bool IsLivingObject(int gid)
-        {
-            return LivingObjects.ContainsKey(gid);
-        }
-
-        public static IEnumerable<LivingObjectRecord> GetLivingObjectRecords()
-        {
-            return LivingObjects.Values;
-        }
+    public static IEnumerable<LivingObjectRecord> GetLivingObjectRecords()
+    {
+        return LivingObjects.Values;
     }
 }
