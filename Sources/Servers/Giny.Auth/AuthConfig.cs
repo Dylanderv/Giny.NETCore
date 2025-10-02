@@ -39,7 +39,7 @@ public class AuthConfig : IConfigFile
     {
         get;
         set;
-    } = "giny_auth";
+    } = "giny";
 
     public string IPCHost
     {

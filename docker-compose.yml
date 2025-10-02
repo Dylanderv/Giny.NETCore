@@ -1,0 +1,14 @@
+services:
+  db:
+    image: mariadb:10.4.28
+    ports:
+      - "3306:3306"
+    environment:
+      - MARIADB_USER=user
+      - MARIADB_PASSWORD=user
+      - MARIADB_DATABASE=giny
+      - MARIADB_ROOT_PASSWORD=root
+    volumes:
+        - ./Ressources/SQL:/init-script:ro
+        - ./Ressources/SQL/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+        - ./DockerVolume/mariadb:/var/lib/mysql
