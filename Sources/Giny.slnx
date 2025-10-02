@@ -1,0 +1,31 @@
+<Solution>
+  <Folder Name="/Modules/">
+    <Project Path="Modules/Giny.CraftableDrop/Giny.CraftableDrop.csproj" />
+    <Project Path="Modules/Giny.DatabasePatcher/Giny.DatabasePatcher.csproj" />
+    <Project Path="Modules/Giny.DofusDrop/Giny.DofusDrop.csproj" />
+    <Project Path="Modules/Giny.DungeonZaap/Giny.DungeonZaap.csproj" />
+    <Project Path="Modules/Giny.Pokefus/Giny.Pokefus.csproj" />
+    <Project Path="Modules/Giny.SmithmagicMonsters/Giny.SmithmagicMonsters.csproj" />
+  </Folder>
+  <Folder Name="/Servers/">
+    <Project Path="Servers/Giny.Auth/Giny.Auth.csproj" />
+    <Project Path="Servers/Giny.World/Giny.World.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="readme.md" />
+  </Folder>
+  <Folder Name="/Sync/">
+    <Project Path="Sync/Giny.AS3/Giny.AS3.csproj" />
+    <Project Path="Sync/Giny.CustomEnumsBuilder/Giny.CustomEnumsBuilder.csproj" />
+    <Project Path="Sync/Giny.DatabaseSynchronizer/Giny.DatabaseSynchronizer.csproj" />
+    <Project Path="Sync/Giny.ProtocolBuilder/Giny.ProtocolBuilder.csproj" />
+  </Folder>
+  <Folder Name="/Tests/" />
+  <Folder Name="/Zaap/">
+    <Project Path="Zaap/Giny.Zaap/Giny.Zaap.csproj" />
+  </Folder>
+  <Project Path="Giny.Core/Giny.Core.csproj" />
+  <Project Path="Giny.IO/Giny.IO.csproj" />
+  <Project Path="Giny.ORM/Giny.ORM.csproj" />
+  <Project Path="Giny.Protocol/Giny.Protocol.csproj" />
+</Solution>
